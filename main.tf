@@ -36,7 +36,7 @@ module "container" {
 }
 
 module "task" {
-  source                            = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.10.0"
+  source                            = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.11.0"
   name                              = "${var.name}"
   namespace                         = "${var.project}"
   stage                             = "${var.environment}"
@@ -53,5 +53,6 @@ module "task" {
   ecs_cluster_arn                   = "${var.ecs_cluster_arn}"
   vpc_id                            = "${var.vpc_id}"
   security_group_ids                = "${var.security_group_ids}"
-  private_subnet_ids                = "${var.private_subnet_ids}"
+  subnet_ids                        = "${var.subnet_ids}"
+  assign_public_ip                  = "${var.assign_public_ip}"
 }

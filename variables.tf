@@ -81,8 +81,8 @@ variable "ecs_cluster_arn" {
   description = "The ARN of the ECS cluster where service will be provisioned"
 }
 
-variable "private_subnet_ids" {
-  description = "Private subnet IDs"
+variable "subnet_ids" {
+  description = "Subnet IDs"
   type        = "list"
 }
 
@@ -95,4 +95,10 @@ variable "health_check_grace_period_seconds" {
   type        = "string"
   description = "Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers"
   default     = 0
+}
+
+variable "assign_public_ip" {
+  type        = "string"
+  default     = "false"
+  description = "Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false."
 }
