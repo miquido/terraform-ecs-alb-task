@@ -3,6 +3,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | alb_target_group_arn | The ALB target group ARN for the ECS service | string | - | yes |
+| assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
 | container_image | - | string | `app` | no |
 | container_port | The port on the container to associate with the load balancer | string | `80` | no |
 | container_tag | - | string | `latest` | no |
@@ -13,9 +14,9 @@
 | health_check_grace_period_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | string | `0` | no |
 | logs_region | AWS Logs Region | string | - | yes |
 | name | Resource common name | string | - | yes |
-| private_subnet_ids | Private subnet IDs | list | - | yes |
 | project | Account/Project Name | string | - | yes |
 | security_group_ids | Security group IDs to allow in Service `network_configuration` | list | - | yes |
+| subnet_ids | Subnet IDs | list | - | yes |
 | tags | Tags to apply on repository | map | `<map>` | no |
 | task_cpu | The number of CPU units used by the task. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | string | `256` | no |
 | task_memory | The amount of memory (in MiB) used by the task. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | string | `512` | no |
