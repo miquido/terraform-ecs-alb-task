@@ -102,3 +102,15 @@ variable "assign_public_ip" {
   default     = "false"
   description = "Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false."
 }
+
+variable "entrypoint" {
+  type        = "list"
+  description = "The entry point that is passed to the container"
+  default     = [""]
+}
+
+variable "command" {
+  type        = "list"
+  description = "The command that is passed to the container"
+  default     = [""]
+}

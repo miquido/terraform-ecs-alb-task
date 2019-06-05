@@ -31,11 +31,13 @@ Available targets:
 |------|-------------|:----:|:-----:|:-----:|
 | alb_target_group_arn | The ALB target group ARN for the ECS service | string | - | yes |
 | assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
+| command | The command that is passed to the container | list | `<list>` | no |
 | container_image | - | string | `app` | no |
 | container_port | The port on the container to associate with the load balancer | string | `80` | no |
 | container_tag | - | string | `latest` | no |
 | desired_count | The number of instances of the task definition to place and keep running | string | `1` | no |
 | ecs_cluster_arn | The ARN of the ECS cluster where service will be provisioned | string | - | yes |
+| entrypoint | The entry point that is passed to the container | list | `<list>` | no |
 | environment | Environment name | string | `` | no |
 | envs | The environment variables to pass to the container. This is a list of maps | list | `<list>` | no |
 | health_check_grace_period_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | string | `0` | no |

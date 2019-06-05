@@ -13,10 +13,12 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source          = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=0.10.0"
+  source          = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=0.14.0"
   container_name  = "${module.label.id}"
   container_image = "${var.container_image}:${var.container_tag}"
   environment     = "${var.envs}"
+  entrypoint      = "${var.entrypoint}"
+  command         = "${var.command}"
 
   container_cpu                = ""
   container_memory             = ""
