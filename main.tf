@@ -20,9 +20,9 @@ module "container" {
   entrypoint      = "${var.entrypoint}"
   command         = "${var.command}"
 
-  container_cpu                = ""
-  container_memory             = ""
-  container_memory_reservation = ""
+  container_cpu                = 0
+  container_memory             = 0
+  container_memory_reservation = 0
 
   port_mappings = [{
     "containerPort" = "${var.container_port}"
