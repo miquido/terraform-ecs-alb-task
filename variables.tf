@@ -81,6 +81,11 @@ variable "ecs_cluster_arn" {
   description = "The ARN of the ECS cluster where service will be provisioned"
 }
 
+variable "ecs_cluster_name" {
+  type        = "string"
+  description = "The Name of the ECS cluster where service will be provisioned"
+}
+
 variable "subnet_ids" {
   description = "Subnet IDs"
   type        = "list"
@@ -113,4 +118,134 @@ variable "command" {
   type        = "list"
   description = "The command that is passed to the container"
   default     = [""]
+}
+
+##########
+# ALARMS
+##########
+
+variable "ecs_alarms_enabled" {
+  type        = "string"
+  description = "A boolean to enable/disable CloudWatch Alarms for ECS Service metrics"
+  default     = "false"
+}
+
+variable "ecs_alarms_cpu_utilization_high_threshold" {
+  type        = "string"
+  description = "The maximum percentage of CPU utilization average"
+  default     = "80"
+}
+
+variable "ecs_alarms_cpu_utilization_high_evaluation_periods" {
+  type        = "string"
+  description = "Number of periods to evaluate for the alarm"
+  default     = "1"
+}
+
+variable "ecs_alarms_cpu_utilization_high_period" {
+  type        = "string"
+  description = "Duration in seconds to evaluate for the alarm"
+  default     = "300"
+}
+
+variable "ecs_alarms_cpu_utilization_high_alarm_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_high_ok_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High OK action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_low_threshold" {
+  type        = "string"
+  description = "The minimum percentage of CPU utilization average"
+  default     = "20"
+}
+
+variable "ecs_alarms_cpu_utilization_low_evaluation_periods" {
+  type        = "string"
+  description = "Number of periods to evaluate for the alarm"
+  default     = "1"
+}
+
+variable "ecs_alarms_cpu_utilization_low_period" {
+  type        = "string"
+  description = "Duration in seconds to evaluate for the alarm"
+  default     = "300"
+}
+
+variable "ecs_alarms_cpu_utilization_low_alarm_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization Low Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_cpu_utilization_low_ok_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization Low OK action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_high_threshold" {
+  type        = "string"
+  description = "The maximum percentage of Memory utilization average"
+  default     = "80"
+}
+
+variable "ecs_alarms_memory_utilization_high_evaluation_periods" {
+  type        = "string"
+  description = "Number of periods to evaluate for the alarm"
+  default     = "1"
+}
+
+variable "ecs_alarms_memory_utilization_high_period" {
+  type        = "string"
+  description = "Duration in seconds to evaluate for the alarm"
+  default     = "300"
+}
+
+variable "ecs_alarms_memory_utilization_high_alarm_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization High Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_high_ok_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization High OK action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_low_threshold" {
+  type        = "string"
+  description = "The minimum percentage of Memory utilization average"
+  default     = "20"
+}
+
+variable "ecs_alarms_memory_utilization_low_evaluation_periods" {
+  type        = "string"
+  description = "Number of periods to evaluate for the alarm"
+  default     = "1"
+}
+
+variable "ecs_alarms_memory_utilization_low_period" {
+  type        = "string"
+  description = "Duration in seconds to evaluate for the alarm"
+  default     = "300"
+}
+
+variable "ecs_alarms_memory_utilization_low_alarm_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization Low Alarm action"
+  default     = []
+}
+
+variable "ecs_alarms_memory_utilization_low_ok_actions" {
+  type        = "list"
+  description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization Low OK action"
+  default     = []
 }
