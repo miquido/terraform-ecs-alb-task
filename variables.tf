@@ -83,7 +83,8 @@ variable "ecs_cluster_arn" {
 
 variable "ecs_cluster_name" {
   type        = "string"
-  description = "The Name of the ECS cluster where service will be provisioned"
+  default     = ""
+  description = "The Name of the ECS cluster where service will be provisioned. Required for alarms."
 }
 
 variable "subnet_ids" {

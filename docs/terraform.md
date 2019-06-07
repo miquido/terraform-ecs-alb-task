@@ -31,7 +31,7 @@
 | ecs_alarms_memory_utilization_low_period | Duration in seconds to evaluate for the alarm | string | `300` | no |
 | ecs_alarms_memory_utilization_low_threshold | The minimum percentage of Memory utilization average | string | `20` | no |
 | ecs_cluster_arn | The ARN of the ECS cluster where service will be provisioned | string | - | yes |
-| ecs_cluster_name | The Name of the ECS cluster where service will be provisioned | string | - | yes |
+| ecs_cluster_name | The Name of the ECS cluster where service will be provisioned. Required for alarms. | string | `` | no |
 | entrypoint | The entry point that is passed to the container | list | `<list>` | no |
 | environment | Environment name | string | `` | no |
 | envs | The environment variables to pass to the container. This is a list of maps | list | `<list>` | no |
