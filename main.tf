@@ -38,11 +38,12 @@ module "container" {
 }
 
 module "task" {
-  source                            = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.11.0"
-  name                              = "${var.name}"
-  namespace                         = "${var.project}"
-  stage                             = "${var.environment}"
-  tags                              = "${var.tags}"
+  source    = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.11.0"
+  name      = "${var.name}"
+  namespace = "${var.project}"
+  stage     = "${var.environment}"
+  tags      = "${var.tags}"
+
   container_definition_json         = "${module.container.json}"
   container_name                    = "${module.label.id}"
   container_port                    = "${var.container_port}"
@@ -59,6 +60,13 @@ module "task" {
   assign_public_ip                  = "${var.assign_public_ip}"
 }
 
+locals {
+  cpu_utilization_high_alarm_actions    = "${var.autoscaling_enabled == "true" && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_up_policy_arn : ""}"
+  cpu_utilization_low_alarm_actions     = "${var.autoscaling_enabled == "true" && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_down_policy_arn : ""}"
+  memory_utilization_high_alarm_actions = "${var.autoscaling_enabled == "true" && var.autoscaling_dimension == "memory" ? module.autoscaling.scale_up_policy_arn : ""}"
+  memory_utilization_low_alarm_actions  = "${var.autoscaling_enabled == "true" && var.autoscaling_dimension == "memory" ? module.autoscaling.scale_down_policy_arn : ""}"
+}
+
 module "ecs-service-alarms" {
   source       = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=0.4.1"
   enabled      = "${var.ecs_alarms_enabled}"
@@ -72,24 +80,43 @@ module "ecs-service-alarms" {
   cpu_utilization_high_threshold          = "${var.ecs_alarms_cpu_utilization_high_threshold}"
   cpu_utilization_high_evaluation_periods = "${var.ecs_alarms_cpu_utilization_high_evaluation_periods}"
   cpu_utilization_high_period             = "${var.ecs_alarms_cpu_utilization_high_period}"
-  cpu_utilization_high_alarm_actions      = "${compact(var.ecs_alarms_cpu_utilization_high_alarm_actions)}"
+  cpu_utilization_high_alarm_actions      = "${compact(concat(var.ecs_alarms_cpu_utilization_high_alarm_actions, list(local.cpu_utilization_high_alarm_actions)))}"
   cpu_utilization_high_ok_actions         = "${var.ecs_alarms_cpu_utilization_high_ok_actions}"
 
   cpu_utilization_low_threshold          = "${var.ecs_alarms_cpu_utilization_low_threshold}"
   cpu_utilization_low_evaluation_periods = "${var.ecs_alarms_cpu_utilization_low_evaluation_periods}"
   cpu_utilization_low_period             = "${var.ecs_alarms_cpu_utilization_low_period}"
-  cpu_utilization_low_alarm_actions      = "${compact(var.ecs_alarms_cpu_utilization_low_alarm_actions)}"
+  cpu_utilization_low_alarm_actions      = "${compact(concat(var.ecs_alarms_cpu_utilization_low_alarm_actions, list(local.cpu_utilization_low_alarm_actions)))}"
   cpu_utilization_low_ok_actions         = "${var.ecs_alarms_cpu_utilization_low_ok_actions}"
 
   memory_utilization_high_threshold          = "${var.ecs_alarms_memory_utilization_high_threshold}"
   memory_utilization_high_evaluation_periods = "${var.ecs_alarms_memory_utilization_high_evaluation_periods}"
   memory_utilization_high_period             = "${var.ecs_alarms_memory_utilization_high_period}"
-  memory_utilization_high_alarm_actions      = "${compact(var.ecs_alarms_memory_utilization_high_alarm_actions)}"
+  memory_utilization_high_alarm_actions      = "${compact(concat(var.ecs_alarms_memory_utilization_high_alarm_actions, list(local.memory_utilization_high_alarm_actions)))}"
   memory_utilization_high_ok_actions         = "${var.ecs_alarms_memory_utilization_high_ok_actions}"
 
   memory_utilization_low_threshold          = "${var.ecs_alarms_memory_utilization_low_threshold}"
   memory_utilization_low_evaluation_periods = "${var.ecs_alarms_memory_utilization_low_evaluation_periods}"
   memory_utilization_low_period             = "${var.ecs_alarms_memory_utilization_low_period}"
-  memory_utilization_low_alarm_actions      = "${compact(var.ecs_alarms_memory_utilization_low_alarm_actions)}"
+  memory_utilization_low_alarm_actions      = "${compact(concat(var.ecs_alarms_memory_utilization_low_alarm_actions, list(local.memory_utilization_low_alarm_actions)))}"
   memory_utilization_low_ok_actions         = "${var.ecs_alarms_memory_utilization_low_ok_actions}"
+}
+
+module "autoscaling" {
+  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=0.1.0"
+  enabled   = "${var.autoscaling_enabled}"
+  name      = "${var.name}"
+  namespace = "${var.project}"
+  stage     = "${var.environment}"
+  tags      = "${var.tags}"
+
+  service_name = "${module.task.service_name}"
+  cluster_name = "${var.ecs_cluster_name}"
+
+  min_capacity          = "${var.autoscaling_min_capacity}"
+  max_capacity          = "${var.autoscaling_max_capacity}"
+  scale_down_adjustment = "${var.autoscaling_scale_down_adjustment}"
+  scale_down_cooldown   = "${var.autoscaling_scale_down_cooldown}"
+  scale_up_adjustment   = "${var.autoscaling_scale_up_adjustment}"
+  scale_up_cooldown     = "${var.autoscaling_scale_up_cooldown}"
 }

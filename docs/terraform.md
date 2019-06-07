@@ -4,6 +4,14 @@
 |------|-------------|:----:|:-----:|:-----:|
 | alb_target_group_arn | The ALB target group ARN for the ECS service | string | - | yes |
 | assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
+| autoscaling_dimension | Dimension to autoscale on (valid options: cpu, memory) | string | `cpu` | no |
+| autoscaling_enabled | A boolean to enable/disable Autoscaling policy for ECS Service | string | `false` | no |
+| autoscaling_max_capacity | Maximum number of running instances of a Service | string | `2` | no |
+| autoscaling_min_capacity | Minimum number of running instances of a Service | string | `1` | no |
+| autoscaling_scale_down_adjustment | Scaling adjustment to make during scale down event | string | `-1` | no |
+| autoscaling_scale_down_cooldown | Period (in seconds) to wait between scale down events | string | `300` | no |
+| autoscaling_scale_up_adjustment | Scaling adjustment to make during scale up event | string | `1` | no |
+| autoscaling_scale_up_cooldown | Period (in seconds) to wait between scale up events | string | `60` | no |
 | command | The command that is passed to the container | list | `<list>` | no |
 | container_image | - | string | `app` | no |
 | container_port | The port on the container to associate with the load balancer | string | `80` | no |

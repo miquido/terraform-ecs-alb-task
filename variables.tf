@@ -250,3 +250,55 @@ variable "ecs_alarms_memory_utilization_low_ok_actions" {
   description = "A list of ARNs (i.e. SNS Topic ARN) to notify on Memory Utilization Low OK action"
   default     = []
 }
+
+################
+# AUTOSCALLING
+###############
+
+variable "autoscaling_enabled" {
+  type        = "string"
+  description = "A boolean to enable/disable Autoscaling policy for ECS Service"
+  default     = "false"
+}
+
+variable "autoscaling_dimension" {
+  type        = "string"
+  description = "Dimension to autoscale on (valid options: cpu, memory)"
+  default     = "cpu"
+}
+
+variable "autoscaling_min_capacity" {
+  type        = "string"
+  description = "Minimum number of running instances of a Service"
+  default     = "1"
+}
+
+variable "autoscaling_max_capacity" {
+  type        = "string"
+  description = "Maximum number of running instances of a Service"
+  default     = "2"
+}
+
+variable "autoscaling_scale_up_adjustment" {
+  type        = "string"
+  description = "Scaling adjustment to make during scale up event"
+  default     = "1"
+}
+
+variable "autoscaling_scale_up_cooldown" {
+  type        = "string"
+  description = "Period (in seconds) to wait between scale up events"
+  default     = "60"
+}
+
+variable "autoscaling_scale_down_adjustment" {
+  type        = "string"
+  description = "Scaling adjustment to make during scale down event"
+  default     = "-1"
+}
+
+variable "autoscaling_scale_down_cooldown" {
+  type        = "string"
+  description = "Period (in seconds) to wait between scale down events"
+  default     = "300"
+}
