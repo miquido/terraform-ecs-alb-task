@@ -7,8 +7,9 @@ module "label" {
 }
 
 resource "aws_cloudwatch_log_group" "app" {
-  name = "${module.label.id}"
-  tags = "${module.label.tags}"
+  name              = "${module.label.id}"
+  tags              = "${module.label.tags}"
+  retention_in_days = "${var.log_retention}"
 }
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
