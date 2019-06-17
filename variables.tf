@@ -302,3 +302,8 @@ variable "autoscaling_scale_down_cooldown" {
   description = "Period (in seconds) to wait between scale down events"
   default     = "300"
 }
+
+variable "log_retention" {
+  default     = "7"
+  description = "Specifies the number of days you want to retain log events in the specified log group."
+}
