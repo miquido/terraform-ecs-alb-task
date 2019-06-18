@@ -71,11 +71,6 @@ variable "vpc_id" {
   description = "The VPC ID where resources are created"
 }
 
-variable "alb_target_group_arn" {
-  type        = "string"
-  description = "The ALB target group ARN for the ECS service"
-}
-
 variable "ecs_cluster_arn" {
   type        = "string"
   description = "The ARN of the ECS cluster where service will be provisioned"
@@ -95,12 +90,6 @@ variable "subnet_ids" {
 variable "security_group_ids" {
   description = "Security group IDs to allow in Service `network_configuration`"
   type        = "list"
-}
-
-variable "health_check_grace_period_seconds" {
-  type        = "string"
-  description = "Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers"
-  default     = 0
 }
 
 variable "assign_public_ip" {
@@ -318,4 +307,15 @@ variable "readonly_root_filesystem" {
   type        = "string"
   description = "Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value"
   default     = "false"
+}
+
+variable "enable_service_discovery" {
+  default     = "false"
+  description = "Manages creation of ECS Service Discovery resource for created ECS Service."
+}
+
+variable "propagate_tags" {
+  default     = ""
+  type        = "string"
+  description = "Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION."
 }
