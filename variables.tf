@@ -307,3 +307,15 @@ variable "log_retention" {
   default     = "7"
   description = "Specifies the number of days you want to retain log events in the specified log group."
 }
+
+variable "healthcheck" {
+  type        = "map"
+  description = "A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) [docs: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html]"
+  default     = {}
+}
+
+variable "readonly_root_filesystem" {
+  type        = "string"
+  description = "Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value"
+  default     = "false"
+}
