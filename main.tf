@@ -51,26 +51,25 @@ locals {
 
 
 module "task" {
-  source    = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.12.0"
+  source    = "./modules/ecs-service-discovery-service-task"
   name      = "${var.name}"
   namespace = "${var.project}"
   stage     = "${var.environment}"
   tags      = "${var.tags}"
 
-  container_definition_json         = "${local.container_definitions_json}"
-  container_name                    = "${module.label.id}"
-  container_port                    = "${var.container_port}"
-  launch_type                       = "FARGATE"
-  task_cpu                          = "${var.task_cpu}"
-  task_memory                       = "${var.task_memory}"
-  desired_count                     = "${var.desired_count}"
-  health_check_grace_period_seconds = "${var.health_check_grace_period_seconds}"
-  alb_target_group_arn              = "${var.alb_target_group_arn}"
-  ecs_cluster_arn                   = "${var.ecs_cluster_arn}"
-  vpc_id                            = "${var.vpc_id}"
-  security_group_ids                = "${var.security_group_ids}"
-  subnet_ids                        = "${var.subnet_ids}"
-  assign_public_ip                  = "${var.assign_public_ip}"
+  container_definition_json = "${module.container.json}"
+  container_name            = "${module.label.id}"
+  launch_type               = "FARGATE"
+  task_cpu                  = "${var.task_cpu}"
+  task_memory               = "${var.task_memory}"
+  desired_count             = "${var.desired_count}"
+  ecs_cluster_arn           = "${var.ecs_cluster_arn}"
+  vpc_id                    = "${var.vpc_id}"
+  security_group_ids        = "${var.security_group_ids}"
+  subnet_ids                = "${var.subnet_ids}"
+  assign_public_ip          = "${var.assign_public_ip}"
+  enable_service_discovery  = "${var.enable_service_discovery}"
+  propagate_tags            = "${var.propagate_tags}"
 }
 
 locals {

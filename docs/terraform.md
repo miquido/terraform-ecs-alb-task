@@ -3,7 +3,6 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | additional_containers | Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map) | list | `<list>` | no |
-| alb_target_group_arn | The ALB target group ARN for the ECS service | string | - | yes |
 | assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
 | autoscaling_dimension | Dimension to autoscale on (valid options: cpu, memory) | string | `cpu` | no |
 | autoscaling_enabled | A boolean to enable/disable Autoscaling policy for ECS Service | string | `false` | no |
@@ -41,15 +40,16 @@
 | ecs_alarms_memory_utilization_low_threshold | The minimum percentage of Memory utilization average | string | `20` | no |
 | ecs_cluster_arn | The ARN of the ECS cluster where service will be provisioned | string | - | yes |
 | ecs_cluster_name | The Name of the ECS cluster where service will be provisioned. Required for alarms. | string | `` | no |
+| enable_service_discovery | Manages creation of ECS Service Discovery resource for created ECS Service. | string | `false` | no |
 | entrypoint | The entry point that is passed to the container | list | `<list>` | no |
 | environment | Environment name | string | `` | no |
 | envs | The environment variables to pass to the container. This is a list of maps | list | `<list>` | no |
-| health_check_grace_period_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | string | `0` | no |
 | healthcheck | A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) [docs: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html] | map | `<map>` | no |
 | log_retention | Specifies the number of days you want to retain log events in the specified log group. | string | `7` | no |
 | logs_region | AWS Logs Region | string | - | yes |
 | name | Resource common name | string | - | yes |
 | project | Account/Project Name | string | - | yes |
+| propagate_tags | Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION. | string | `` | no |
 | readonly_root_filesystem | Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value | string | `false` | no |
 | security_group_ids | Security group IDs to allow in Service `network_configuration` | list | - | yes |
 | subnet_ids | Subnet IDs | list | - | yes |
