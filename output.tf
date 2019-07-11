@@ -37,3 +37,23 @@ output "container_name" {
   description = "ECS task container name"
   value       = "${module.label.id}"
 }
+
+output "ecs_exec_role_policy_id" {
+  description = "The ECS service role policy ID, in the form of role_name:role_policy_name"
+  value       = "${module.task.ecs_exec_role_policy_id}"
+}
+
+output "ecs_exec_role_policy_name" {
+  description = "ECS service role name"
+  value       = "${module.task.ecs_exec_role_policy_name}"
+}
+
+output "task_exec_role_name" {
+  description = "ECS Task role name"
+  value       = "${module.task.task_exec_role_name}"
+}
+
+output "task_exec_role_arn" {
+  description = "ECS Task exec role ARN"
+  value       = "${module.task.task_exec_role_arn}"
+}

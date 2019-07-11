@@ -29,6 +29,7 @@ Available targets:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
+| additional_containers | Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map) | list | `<list>` | no |
 | alb_target_group_arn | The ALB target group ARN for the ECS service | string | - | yes |
 | assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
 | autoscaling_dimension | Dimension to autoscale on (valid options: cpu, memory) | string | `cpu` | no |
@@ -89,11 +90,15 @@ Available targets:
 | Name | Description |
 |------|-------------|
 | container_name | ECS task container name |
+| ecs_exec_role_policy_id | The ECS service role policy ID, in the form of role_name:role_policy_name |
+| ecs_exec_role_policy_name | ECS service role name |
 | service_name | ECS Service name |
 | service_role_arn | ECS Service role ARN |
 | service_security_group_id | Security Group ID of the ECS task |
 | task_definition_family | ECS task definition family |
 | task_definition_revision | ECS task definition revision |
+| task_exec_role_arn | ECS Task exec role ARN |
+| task_exec_role_name | ECS Task role name |
 | task_role_arn | ECS Task role ARN |
 | task_role_name | ECS Task role name |
 

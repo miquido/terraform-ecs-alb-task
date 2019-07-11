@@ -10,11 +10,12 @@ resource "aws_cloudwatch_log_group" "app" {
   name              = "${module.label.id}"
   tags              = "${module.label.tags}"
   retention_in_days = "${var.log_retention}"
+  tags              = "${module.label.tags}"
 }
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                   = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=0.14.0"
+  source                   = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=0.15.0"
   container_name           = "${module.label.id}"
   container_image          = "${var.container_image}:${var.container_tag}"
   environment              = "${var.envs}"
@@ -40,14 +41,23 @@ module "container" {
   }
 }
 
+locals {
+  container_definitions = [
+    "${module.container.json_map}",
+    "${var.additional_containers}"
+  ]
+  container_definitions_json = "[${join(",", compact(local.container_definitions))}]"
+}
+
+
 module "task" {
-  source    = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.11.0"
+  source    = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.12.0"
   name      = "${var.name}"
   namespace = "${var.project}"
   stage     = "${var.environment}"
   tags      = "${var.tags}"
 
-  container_definition_json         = "${module.container.json}"
+  container_definition_json         = "${local.container_definitions_json}"
   container_name                    = "${module.label.id}"
   container_port                    = "${var.container_port}"
   launch_type                       = "FARGATE"

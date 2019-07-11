@@ -121,6 +121,12 @@ variable "command" {
   default     = [""]
 }
 
+variable "additional_containers" {
+  type        = "list"
+  description = "Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map)"
+  default     = [""]
+}
+
 ##########
 # ALARMS
 ##########
