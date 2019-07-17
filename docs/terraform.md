@@ -65,6 +65,8 @@
 | container_name | ECS task container name |
 | ecs_exec_role_policy_id | The ECS service role policy ID, in the form of role_name:role_policy_name |
 | ecs_exec_role_policy_name | ECS service role name |
+| log_group_arn | The Amazon Resource Name (ARN) specifying the log group |
+| log_group_name | The name of the log group |
 | service_name | ECS Service name |
 | service_role_arn | ECS Service role ARN |
 | service_security_group_id | Security Group ID of the ECS task |
