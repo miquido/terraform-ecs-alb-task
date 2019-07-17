@@ -57,3 +57,13 @@ output "task_exec_role_arn" {
   description = "ECS Task exec role ARN"
   value       = "${module.task.task_exec_role_arn}"
 }
+
+output "log_group_name" {
+  description = "The name of the log group"
+  value       = "${aws_cloudwatch_log_group.app.name}"
+}
+
+output "log_group_arn" {
+  description = " The Amazon Resource Name (ARN) specifying the log group"
+  value       = "${aws_cloudwatch_log_group.app.arn}"
+}
