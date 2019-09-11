@@ -7,7 +7,7 @@ module "label" {
 }
 
 resource "aws_cloudwatch_log_group" "app" {
-  name              = "${module.label.id}"
+  name              = "/aws/ecs/${module.label.id}"
   tags              = "${module.label.tags}"
   retention_in_days = "${var.log_retention}"
   tags              = "${module.label.tags}"
@@ -44,11 +44,11 @@ module "container" {
 locals {
   container_definitions = [
     "${module.container.json_map}",
-    "${var.additional_containers}"
+    "${var.additional_containers}",
   ]
+
   container_definitions_json = "[${join(",", compact(local.container_definitions))}]"
 }
-
 
 module "task" {
   source    = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.12.0"
