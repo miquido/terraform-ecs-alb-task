@@ -70,6 +70,7 @@ module "task" {
   security_group_ids                = var.security_group_ids
   subnet_ids                        = var.subnet_ids
   assign_public_ip                  = var.assign_public_ip
+  ignore_changes_task_definition    = var.ignore_changes_task_definition ? "true" : "false"
 }
 
 locals {

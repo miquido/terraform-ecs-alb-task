@@ -47,6 +47,7 @@
 | envs | The environment variables to pass to the container. This is a list of maps | list(map(string)) | `<list>` | no |
 | health_check_grace_period_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | string | `0` | no |
 | healthcheck | A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) [docs: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html] | map(string) | `<map>` | no |
+| ignore_changes_task_definition | Whether to ignore changes in container definition and task definition in the ECS service | bool | `true` | no |
 | log_retention | Specifies the number of days you want to retain log events in the specified log group. | string | `7` | no |
 | logs_region | AWS Logs Region | string | - | yes |
 | name | Resource common name | string | - | yes |

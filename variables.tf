@@ -131,6 +131,11 @@ variable "additional_containers" {
   default     = [""]
 }
 
+variable "ignore_changes_task_definition" {
+  type        = bool
+  description = "Whether to ignore changes in container definition and task definition in the ECS service"
+  default     = true
+}
 ##########
 # ALARMS
 ##########
