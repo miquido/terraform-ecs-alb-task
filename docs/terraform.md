@@ -3,8 +3,7 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | additional_containers | Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map) | list(string) | `<list>` | no |
-| alb_security_group | Security group of the ALB | string | - | yes |
-| alb_target_group_arn | The ALB target group ARN for the ECS service | string | - | yes |
+| alb_target_group_arn | The ALB target group ARN for the ECS service | string | `` | no |
 | assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
 | autoscaling_dimension | Dimension to autoscale on (valid options: cpu, memory) | string | `cpu` | no |
 | autoscaling_enabled | A boolean to enable/disable Autoscaling policy for ECS Service | string | `false` | no |
@@ -16,9 +15,12 @@
 | autoscaling_scale_up_cooldown | Period (in seconds) to wait between scale up events | string | `60` | no |
 | command | The command that is passed to the container | list(string) | `<list>` | no |
 | container_image | - | string | `app` | no |
-| container_port | The port on the container to associate with the load balancer | string | `80` | no |
+| container_port | The port on the container to associate with the load balancer | number | `80` | no |
 | container_tag | - | string | `latest` | no |
-| desired_count | The number of instances of the task definition to place and keep running | string | `1` | no |
+| deployment_controller_type | Type of deployment controller. Valid values: `CODE_DEPLOY`, `ECS`. | string | `ECS` | no |
+| deployment_maximum_percent | The upper limit of the number of tasks (as a percentage of `desired_count`) that can be running in a service during a deployment | number | `200` | no |
+| deployment_minimum_healthy_percent | The lower limit (as a percentage of `desired_count`) of the number of tasks that must remain running and healthy in a service during a deployment | number | `100` | no |
+| desired_count | The number of instances of the task definition to place and keep running | number | `1` | no |
 | ecs_alarms_cpu_utilization_high_alarm_actions | A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High Alarm action | list(string) | `<list>` | no |
 | ecs_alarms_cpu_utilization_high_evaluation_periods | Number of periods to evaluate for the alarm | string | `1` | no |
 | ecs_alarms_cpu_utilization_high_ok_actions | A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High OK action | list(string) | `<list>` | no |
@@ -42,22 +44,29 @@
 | ecs_alarms_memory_utilization_low_threshold | The minimum percentage of Memory utilization average | string | `20` | no |
 | ecs_cluster_arn | The ARN of the ECS cluster where service will be provisioned | string | - | yes |
 | ecs_cluster_name | The Name of the ECS cluster where service will be provisioned. Required for alarms. | string | `` | no |
+| ecs_default_alb_enabled | Whether to create default load balancer configuration with attached provided ALB Target group to main container. Requires setting `alb_target_group_arn` variable. | bool | `true` | no |
+| ecs_load_balancers | A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html | list(map(any)) | `<list>` | no |
 | entrypoint | The entry point that is passed to the container | list(string) | `<list>` | no |
 | environment | Environment name | string | `` | no |
 | envs | The environment variables to pass to the container. This is a list of maps | list(map(string)) | `<list>` | no |
 | health_check_grace_period_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | string | `0` | no |
-| healthcheck | A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) [docs: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html] | map(string) | `<map>` | no |
+| healthcheck | A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) | map(any) | `<map>` | no |
 | ignore_changes_task_definition | Whether to ignore changes in container definition and task definition in the ECS service | bool | `true` | no |
+| ingress_security_group_id | Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable. | string | `` | no |
 | log_retention | Specifies the number of days you want to retain log events in the specified log group. | string | `7` | no |
 | logs_region | AWS Logs Region | string | - | yes |
 | name | Resource common name | string | - | yes |
 | project | Account/Project Name | string | - | yes |
+| propagate_tags | Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION. | string | `SERVICE` | no |
 | readonly_root_filesystem | Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value | string | `false` | no |
+| secrets | The secrets to pass to the container. This is a list of maps | list(map(string)) | `<list>` | no |
 | security_group_ids | Security group IDs to allow in Service `network_configuration` | list(string) | - | yes |
+| ssm_secrets_enabled | Adds IAM Policy for reading secrets from Systems Manager Paramameter Store (use 'ssm_secrets_resources' to limit access to the SSM resources) | bool | `false` | no |
+| ssm_secrets_resources | Limit access to the SSM Parameters when 'enable_secrets_from_ssm' is enabled. By default no resources are allowed to be read. | list(string) | `<list>` | no |
 | subnet_ids | Subnet IDs | list(string) | - | yes |
 | tags | Tags to apply on repository | map(string) | `<map>` | no |
-| task_cpu | The number of CPU units used by the task. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | string | `256` | no |
-| task_memory | The amount of memory (in MiB) used by the task. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | string | `512` | no |
+| task_cpu | The number of CPU units used by the task. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | number | `256` | no |
+| task_memory | The amount of memory (in MiB) used by the task. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | number | `512` | no |
 | vpc_id | The VPC ID where resources are created | string | - | yes |
 
 ## Outputs

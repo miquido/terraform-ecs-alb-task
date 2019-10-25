@@ -1,5 +1,5 @@
 module "label" {
-  source    = "git@github.com:cloudposse/terraform-terraform-label?ref=0.2.1"
+  source    = "git@github.com:cloudposse/terraform-terraform-label?ref=tags/0.4.0"
   name      = var.name
   namespace = var.project
   stage     = var.environment
@@ -14,9 +14,10 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                   = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=0.15.0"
+  source                   = "git@github.com:miquido/terraform-aws-ecs-container-definition?ref=tags/0.19.0-tf012"
   container_name           = module.label.id
   container_image          = "${var.container_image}:${var.container_tag}"
+  secrets                  = var.secrets
   environment              = var.envs
   entrypoint               = var.entrypoint
   command                  = var.command
@@ -43,34 +44,63 @@ module "container" {
 }
 
 locals {
-  container_definitions = compact(concat(list(module.container.json_map), var.additional_containers))
+  container_definitions      = compact(concat(list(module.container.json_map), var.additional_containers))
   container_definitions_json = "[${join(",", local.container_definitions)}]"
+
+  ecs_default_alb = var.ecs_default_alb_enabled ? [{
+    target_group_arn = var.alb_target_group_arn
+    container_name   = module.label.id
+    container_port   = var.container_port
+  }] : []
+
+  ecs_load_balancers = concat(local.ecs_default_alb, var.ecs_load_balancers)
 }
 
 module "task" {
-  # source    = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=0.12.0"
-  source    = "git@github.com:miquido/terraform-aws-ecs-alb-service-task?ref=0.14.0-tf012"
+  source = "git@github.com:miquido/terraform-aws-ecs-alb-service-task?ref=tags/0.16.0-tf012"
+
   name      = var.name
   namespace = var.project
   stage     = var.environment
   tags      = var.tags
 
-  container_definition_json         = local.container_definitions_json
-  container_name                    = module.label.id
-  container_port                    = var.container_port
-  launch_type                       = "FARGATE"
-  task_cpu                          = var.task_cpu
-  task_memory                       = var.task_memory
-  desired_count                     = var.desired_count
-  health_check_grace_period_seconds = var.health_check_grace_period_seconds
-  alb_target_group_arn              = var.alb_target_group_arn
-  alb_security_group                = var.alb_security_group
-  ecs_cluster_arn                   = var.ecs_cluster_arn
-  vpc_id                            = var.vpc_id
-  security_group_ids                = var.security_group_ids
-  subnet_ids                        = var.subnet_ids
-  assign_public_ip                  = var.assign_public_ip
-  ignore_changes_task_definition    = var.ignore_changes_task_definition ? "true" : "false"
+  container_definition_json          = local.container_definitions_json
+  container_port                     = var.container_port
+  launch_type                        = "FARGATE"
+  task_cpu                           = var.task_cpu
+  task_memory                        = var.task_memory
+  desired_count                      = var.desired_count
+  health_check_grace_period_seconds  = var.health_check_grace_period_seconds
+  alb_security_group                 = var.ingress_security_group_id == "" ? var.security_group_ids[0] : var.ingress_security_group_id
+  ecs_cluster_arn                    = var.ecs_cluster_arn
+  ecs_load_balancers                 = local.ecs_load_balancers
+  propagate_tags                     = var.propagate_tags
+  vpc_id                             = var.vpc_id
+  security_group_ids                 = var.security_group_ids
+  subnet_ids                         = var.subnet_ids
+  assign_public_ip                   = var.assign_public_ip
+  ignore_changes_task_definition     = var.ignore_changes_task_definition ? "true" : "false"
+  deployment_controller_type         = var.deployment_controller_type
+  deployment_maximum_percent         = var.deployment_maximum_percent
+  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
+}
+
+data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
+  count = var.ssm_secrets_enabled == true ? 1 : 0
+
+  statement {
+    effect    = "Allow"
+    resources = var.ssm_secrets_resources
+    actions   = ["ssm:GetParameters"]
+  }
+}
+
+resource "aws_iam_role_policy" "ecs-exec-ssm-secrets" {
+  count = var.ssm_secrets_enabled == true ? 1 : 0
+
+  name   = "${module.task.ecs_exec_role_policy_name}-ssm-secrets"
+  policy = data.aws_iam_policy_document.ecs-exec-ssm-secrets[0].json
+  role   = module.task.task_exec_role_name
 }
 
 locals {
@@ -136,7 +166,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=0.1.0"
+  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.1.0"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project

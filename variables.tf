@@ -1,4 +1,5 @@
 variable "environment" {
+  type        = string
   default     = ""
   description = "Environment name"
 }
@@ -35,8 +36,15 @@ variable "container_tag" {
 }
 
 variable "container_port" {
+  type        = number
   description = "The port on the container to associate with the load balancer"
   default     = 80
+}
+
+variable "secrets" {
+  type        = list(map(string))
+  description = "The secrets to pass to the container. This is a list of maps"
+  default     = []
 }
 
 variable "envs" {
@@ -52,11 +60,13 @@ variable "envs" {
 }
 
 variable "task_cpu" {
+  type        = number
   description = "The number of CPU units used by the task. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size)"
   default     = 256
 }
 
 variable "task_memory" {
+  type        = number
   description = "The amount of memory (in MiB) used by the task. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size)"
   default     = 512
 }
@@ -64,6 +74,37 @@ variable "task_memory" {
 variable "desired_count" {
   description = "The number of instances of the task definition to place and keep running"
   default     = 1
+  type        = number
+}
+
+variable "ssm_secrets_enabled" {
+  type        = bool
+  default     = false
+  description = "Adds IAM Policy for reading secrets from Systems Manager Paramameter Store (use 'ssm_secrets_resources' to limit access to the SSM resources)"
+}
+
+variable "ssm_secrets_resources" {
+  type        = list(string)
+  default     = ["*"]
+  description = "Limit access to the SSM Parameters when 'enable_secrets_from_ssm' is enabled. By default no resources are allowed to be read."
+}
+
+variable "deployment_controller_type" {
+  type        = string
+  description = "Type of deployment controller. Valid values: `CODE_DEPLOY`, `ECS`."
+  default     = "ECS"
+}
+
+variable "deployment_maximum_percent" {
+  type        = number
+  description = "The upper limit of the number of tasks (as a percentage of `desired_count`) that can be running in a service during a deployment"
+  default     = 200
+}
+
+variable "deployment_minimum_healthy_percent" {
+  type        = number
+  description = "The lower limit (as a percentage of `desired_count`) of the number of tasks that must remain running and healthy in a service during a deployment"
+  default     = 100
 }
 
 variable "vpc_id" {
@@ -73,13 +114,34 @@ variable "vpc_id" {
 
 variable "alb_target_group_arn" {
   type        = string
+  default     = ""
   description = "The ALB target group ARN for the ECS service"
 }
 
-variable "alb_security_group" {
+variable "ingress_security_group_id" {
   type        = string
-  description = "Security group of the ALB"
+  default     = ""
+  description = "Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable."
 }
+
+variable "ecs_default_alb_enabled" {
+  default     = true
+  type        = bool
+  description = "Whether to create default load balancer configuration with attached provided ALB Target group to main container. Requires setting `alb_target_group_arn` variable."
+}
+
+variable "propagate_tags" {
+  type        = string
+  default     = "SERVICE"
+  description = "Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION."
+}
+
+variable "ecs_load_balancers" {
+  default     = []
+  type        = list(map(any))
+  description = "A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html"
+}
+
 variable "ecs_cluster_arn" {
   type        = string
   description = "The ARN of the ECS cluster where service will be provisioned"
@@ -136,6 +198,7 @@ variable "ignore_changes_task_definition" {
   description = "Whether to ignore changes in container definition and task definition in the ECS service"
   default     = true
 }
+
 ##########
 # ALARMS
 ##########
@@ -320,13 +383,28 @@ variable "autoscaling_scale_down_cooldown" {
 
 variable "log_retention" {
   default     = "7"
+  type        = string
   description = "Specifies the number of days you want to retain log events in the specified log group."
 }
 
 variable "healthcheck" {
-  type        = map(string)
-  description = "A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) [docs: https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html]"
-  default     = {}
+  type = object({
+    command     = list(string)
+    retries     = number
+    timeout     = number
+    interval    = number
+    startPeriod = number
+  })
+
+  description = "A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries)"
+
+  default = {
+    command     = []
+    retries     = null
+    timeout     = null
+    interval    = null
+    startPeriod = null
+  }
 }
 
 variable "readonly_root_filesystem" {
