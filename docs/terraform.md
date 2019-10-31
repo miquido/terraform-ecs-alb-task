@@ -3,8 +3,9 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | additional_containers | Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map) | list(string) | `<list>` | no |
+| additional_port_mappings | The port mappings to configure for the container. This is a list of maps. Each map should contain "containerPort", "hostPort", and "protocol", where "protocol" is one of "tcp" or "udp". If using containers in a task with the awsvpc or host network mode, the hostPort can either be left blank or set to the same value as the containerPort | object | `<list>` | no |
 | alb_target_group_arn | The ALB target group ARN for the ECS service | string | `` | no |
-| assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | string | `false` | no |
+| assign_public_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | bool | `false` | no |
 | autoscaling_dimension | Dimension to autoscale on (valid options: cpu, memory) | string | `cpu` | no |
 | autoscaling_enabled | A boolean to enable/disable Autoscaling policy for ECS Service | string | `false` | no |
 | autoscaling_max_capacity | Maximum number of running instances of a Service | string | `2` | no |
@@ -13,14 +14,20 @@
 | autoscaling_scale_down_cooldown | Period (in seconds) to wait between scale down events | string | `300` | no |
 | autoscaling_scale_up_adjustment | Scaling adjustment to make during scale up event | string | `1` | no |
 | autoscaling_scale_up_cooldown | Period (in seconds) to wait between scale up events | string | `60` | no |
-| command | The command that is passed to the container | list(string) | `<list>` | no |
-| container_image | - | string | `app` | no |
+| command | The command that is passed to the container | list(string) | `null` | no |
+| container_cpu | The number of cpu units to reserve for the container. This is optional for tasks using Fargate launch type and the total amount of container_cpu of all containers in a task will need to be lower than the task-level cpu value | number | `null` | no |
+| container_depends_on | The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed | list(string) | `null` | no |
+| container_image | The image used to start the container. Images in the Docker Hub registry available by default | string | - | yes |
+| container_memory | The amount of memory (in MiB) to allow the container to use. This is a hard limit, if the container attempts to exceed the container_memory, the container is killed. This field is optional for Fargate launch type and the total amount of container_memory of all containers in a task will need to be lower than the task memory value | number | `null` | no |
+| container_memory_reservation | The amount of memory (in MiB) to reserve for the container. If container needs to exceed this threshold, it can do so up to the set container_memory hard limit | number | `null` | no |
 | container_port | The port on the container to associate with the load balancer | number | `80` | no |
 | container_tag | - | string | `latest` | no |
 | deployment_controller_type | Type of deployment controller. Valid values: `CODE_DEPLOY`, `ECS`. | string | `ECS` | no |
 | deployment_maximum_percent | The upper limit of the number of tasks (as a percentage of `desired_count`) that can be running in a service during a deployment | number | `200` | no |
 | deployment_minimum_healthy_percent | The lower limit (as a percentage of `desired_count`) of the number of tasks that must remain running and healthy in a service during a deployment | number | `100` | no |
 | desired_count | The number of instances of the task definition to place and keep running | number | `1` | no |
+| dns_servers | Container DNS servers. This is a list of strings specifying the IP addresses of the DNS servers | list(string) | `null` | no |
+| docker_labels | The configuration options to send to the `docker_labels` | map(string) | `null` | no |
 | ecs_alarms_cpu_utilization_high_alarm_actions | A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High Alarm action | list(string) | `<list>` | no |
 | ecs_alarms_cpu_utilization_high_evaluation_periods | Number of periods to evaluate for the alarm | string | `1` | no |
 | ecs_alarms_cpu_utilization_high_ok_actions | A list of ARNs (i.e. SNS Topic ARN) to notify on CPU Utilization High OK action | list(string) | `<list>` | no |
@@ -45,29 +52,46 @@
 | ecs_cluster_arn | The ARN of the ECS cluster where service will be provisioned | string | - | yes |
 | ecs_cluster_name | The Name of the ECS cluster where service will be provisioned. Required for alarms. | string | `` | no |
 | ecs_default_alb_enabled | Whether to create default load balancer configuration with attached provided ALB Target group to main container. Requires setting `alb_target_group_arn` variable. | bool | `true` | no |
-| ecs_load_balancers | A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html | list(map(any)) | `<list>` | no |
-| entrypoint | The entry point that is passed to the container | list(string) | `<list>` | no |
+| ecs_load_balancers | A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html | object | `<list>` | no |
+| entrypoint | The entry point that is passed to the container | list(string) | `null` | no |
 | environment | Environment name | string | `` | no |
-| envs | The environment variables to pass to the container. This is a list of maps | list(map(string)) | `<list>` | no |
+| envs | The environment variables to pass to the container. This is a list of maps | object | `null` | no |
+| essential | Determines whether all other containers in a task are stopped, if this container fails or stops for any reason. Due to how Terraform type casts booleans in json it is required to double quote this value | bool | `true` | no |
+| firelens_configuration | The FireLens configuration for the container. This is used to specify and configure a log router for container logs. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_FirelensConfiguration.html | object | `null` | no |
 | health_check_grace_period_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | string | `0` | no |
-| healthcheck | A map containing command (string), interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy, and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) | map(any) | `<map>` | no |
+| healthcheck | A map containing command (string), timeout, interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy), and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) | object | `null` | no |
 | ignore_changes_task_definition | Whether to ignore changes in container definition and task definition in the ECS service | bool | `true` | no |
-| ingress_security_group_id | Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable. | string | `` | no |
-| log_retention | Specifies the number of days you want to retain log events in the specified log group. | string | `7` | no |
+| ingress_security_group_id | Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable. | string | `null` | no |
+| launch_type | The launch type on which to run your service. Valid values are `EC2` and `FARGATE` | string | `FARGATE` | no |
+| links | List of container names this container can communicate with without port mappings | list(string) | `null` | no |
+| log_configuration | Log configuration options to send to a custom log driver for the container. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LogConfiguration.html | object | `null` | no |
+| log_retention | Specifies the number of days you want to retain log events in the specified log group. Option has no effect when custom "log_configuration" variable is specified. | string | `7` | no |
 | logs_region | AWS Logs Region | string | - | yes |
+| mount_points | Container mount points. This is a list of maps, where each map should contain a `containerPath` and `sourceVolume` | object | `null` | no |
 | name | Resource common name | string | - | yes |
+| network_mode | The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type` | string | `awsvpc` | no |
+| privileged | When this variable is `true`, the container is given elevated privileges on the host container instance (similar to the root user). This parameter is not supported for Windows containers or tasks using the Fargate launch type. Due to how Terraform type casts booleans in json it is required to double quote this value | string | `null` | no |
 | project | Account/Project Name | string | - | yes |
 | propagate_tags | Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION. | string | `SERVICE` | no |
-| readonly_root_filesystem | Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value | string | `false` | no |
-| secrets | The secrets to pass to the container. This is a list of maps | list(map(string)) | `<list>` | no |
+| readonly_root_filesystem | Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value | bool | `false` | no |
+| repository_credentials | Container repository credentials; required when using a private repo.  This map currently supports a single key; "credentialsParameter", which should be the ARN of a Secrets Manager's secret holding the credentials | map(string) | `null` | no |
+| secrets | The secrets to pass to the container. This is a list of maps | object | `null` | no |
 | security_group_ids | Security group IDs to allow in Service `network_configuration` | list(string) | - | yes |
 | ssm_secrets_enabled | Adds IAM Policy for reading secrets from Systems Manager Paramameter Store (use 'ssm_secrets_resources' to limit access to the SSM resources) | bool | `false` | no |
 | ssm_secrets_resources | Limit access to the SSM Parameters when 'enable_secrets_from_ssm' is enabled. By default no resources are allowed to be read. | list(string) | `<list>` | no |
+| start_timeout | Time duration (in seconds) to wait before giving up on resolving dependencies for a container | number | `30` | no |
+| stop_timeout | Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own | number | `30` | no |
 | subnet_ids | Subnet IDs | list(string) | - | yes |
+| system_controls | A list of namespaced kernel parameters to set in the container, mapping to the --sysctl option to docker run. This is a list of maps: { namespace = "", value = ""} | list(map(string)) | `null` | no |
 | tags | Tags to apply on repository | map(string) | `<map>` | no |
 | task_cpu | The number of CPU units used by the task. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | number | `256` | no |
 | task_memory | The amount of memory (in MiB) used by the task. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | number | `512` | no |
+| ulimits | Container ulimit settings. This is a list of maps, where each map should contain "name", "hardLimit" and "softLimit" | object | `null` | no |
+| user | The user to run as inside the container. Can be any of these formats: user, user:group, uid, uid:gid, user:gid, uid:group | string | `null` | no |
+| volumes | Task volume definitions as list of configuration objects | object | `<list>` | no |
+| volumes_from | A list of VolumesFrom maps which contain "sourceContainer" (name of the container that has the volumes to mount) and "readOnly" (whether the container can write to the volume) | object | `null` | no |
 | vpc_id | The VPC ID where resources are created | string | - | yes |
+| working_directory | The working directory to run commands inside the container | string | `null` | no |
 
 ## Outputs
 
