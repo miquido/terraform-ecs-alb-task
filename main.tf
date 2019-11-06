@@ -83,7 +83,7 @@ locals {
 }
 
 module "task" {
-  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.17.0"
+  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.18.0"
 
   name      = var.name
   namespace = var.project
@@ -104,6 +104,13 @@ module "task" {
   ecs_cluster_arn                    = var.ecs_cluster_arn
   propagate_tags                     = var.propagate_tags
   vpc_id                             = var.vpc_id
+  proxy_configuration                = var.proxy_configuration
+  service_registries                 = var.service_registries
+  platform_version                   = var.platform_version
+  scheduling_strategy                = var.scheduling_strategy
+  ordered_placement_strategy         = var.ordered_placement_strategy
+  task_placement_constraints         = var.task_placement_constraints
+  service_placement_constraints      = var.service_placement_constraints
   security_group_ids                 = var.security_group_ids
   subnet_ids                         = var.subnet_ids
   assign_public_ip                   = var.assign_public_ip
@@ -114,7 +121,7 @@ module "task" {
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
-  count = var.ssm_secrets_enabled == true ? 1 : 0
+  count = var.ssm_secrets_enabled ? 1 : 0
 
   statement {
     effect    = "Allow"
@@ -124,7 +131,7 @@ data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
 }
 
 resource "aws_iam_role_policy" "ecs-exec-ssm-secrets" {
-  count = var.ssm_secrets_enabled == true ? 1 : 0
+  count = var.ssm_secrets_enabled ? 1 : 0
 
   name   = "${module.task.ecs_exec_role_policy_name}-ssm-secrets"
   policy = data.aws_iam_policy_document.ecs-exec-ssm-secrets[0].json
@@ -132,21 +139,22 @@ resource "aws_iam_role_policy" "ecs-exec-ssm-secrets" {
 }
 
 locals {
-  cpu_utilization_high_alarm_actions    = var.autoscaling_enabled == "true" && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_up_policy_arn : ""
-  cpu_utilization_low_alarm_actions     = var.autoscaling_enabled == "true" && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_down_policy_arn : ""
-  memory_utilization_high_alarm_actions = var.autoscaling_enabled == "true" && var.autoscaling_dimension == "memory" ? module.autoscaling.scale_up_policy_arn : ""
-  memory_utilization_low_alarm_actions  = var.autoscaling_enabled == "true" && var.autoscaling_dimension == "memory" ? module.autoscaling.scale_down_policy_arn : ""
+  cpu_utilization_high_alarm_actions    = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_up_policy_arn : ""
+  cpu_utilization_low_alarm_actions     = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_down_policy_arn : ""
+  memory_utilization_high_alarm_actions = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.autoscaling.scale_up_policy_arn : ""
+  memory_utilization_low_alarm_actions  = var.autoscaling_enabled && var.autoscaling_dimension == "memory" ? module.autoscaling.scale_down_policy_arn : ""
 }
 
 module "ecs-service-alarms" {
-  source       = "git@github.com:miquido/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=0.4.1-tf012"
-  enabled      = var.ecs_alarms_enabled
-  name         = var.name
-  namespace    = var.project
-  stage        = var.environment
-  tags         = var.tags
-  cluster_name = var.ecs_cluster_name
-  service_name = module.task.service_name
+  source            = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
+  enabled           = var.ecs_alarms_enabled
+  name              = var.name
+  namespace         = var.project
+  stage             = var.environment
+  tags              = var.tags
+  cluster_name      = var.ecs_cluster_name
+  service_name      = module.task.service_name
+  alarm_description = var.ecs_alarms_alarm_description
 
   cpu_utilization_high_threshold          = var.ecs_alarms_cpu_utilization_high_threshold
   cpu_utilization_high_evaluation_periods = var.ecs_alarms_cpu_utilization_high_evaluation_periods
@@ -194,7 +202,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.1.0"
+  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.2.0"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project

@@ -252,8 +252,8 @@ variable "ignore_changes_task_definition" {
 }
 
 variable "log_retention" {
-  default     = "7"
-  type        = string
+  default     = 7
+  type        = number
   description = "Specifies the number of days you want to retain log events in the specified log group. Option has no effect when custom \"log_configuration\" variable is specified."
 }
 
@@ -421,32 +421,98 @@ variable "volumes" {
   default     = []
 }
 
+variable "proxy_configuration" {
+  type = object({
+    type           = string
+    container_name = string
+    properties     = map(string)
+  })
+  description = "The proxy configuration details for the App Mesh proxy. See `proxy_configuration` docs https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#proxy-configuration-arguments"
+  default     = null
+}
+
+variable "service_registries" {
+  type = list(object({
+    registry_arn   = string
+    port           = number
+    container_name = string
+    container_port = number
+  }))
+  description = "The service discovery registries for the service. The maximum number of service_registries blocks is 1. The currently supported service registry is Amazon Route 53 Auto Naming Service - `aws_service_discovery_service`; see `service_registries` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#service_registries-1"
+  default     = []
+}
+
+variable "platform_version" {
+  type        = string
+  description = "The platform version on which to run your service. Only applicable for launch_type set to FARGATE. More information about Fargate platform versions can be found in the AWS ECS User Guide."
+  default     = "LATEST"
+}
+
+variable "scheduling_strategy" {
+  type        = string
+  description = "The scheduling strategy to use for the service. The valid values are REPLICA and DAEMON. Note that Fargate tasks do not support the DAEMON scheduling strategy."
+  default     = "REPLICA"
+}
+
+variable "ordered_placement_strategy" {
+  type = list(object({
+    type  = string
+    field = string
+  }))
+  description = "Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence. The maximum number of ordered_placement_strategy blocks is 5. See `ordered_placement_strategy` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#ordered_placement_strategy-1"
+  default     = []
+}
+
+variable "task_placement_constraints" {
+  type = list(object({
+    type       = string
+    expression = string
+  }))
+  description = "A set of placement constraints rules that are taken into consideration during task placement. Maximum number of placement_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#placement-constraints-arguments"
+  default     = []
+}
+
+variable "service_placement_constraints" {
+  type = list(object({
+    type       = string
+    expression = string
+  }))
+  description = "The rules that are taken into consideration during task placement. Maximum number of placement_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#placement_constraints-1"
+  default     = []
+}
+
 ##########
 # ALARMS
 ##########
 
 variable "ecs_alarms_enabled" {
-  type        = string
+  type        = bool
   description = "A boolean to enable/disable CloudWatch Alarms for ECS Service metrics"
-  default     = "false"
+  default     = false
+}
+
+variable "ecs_alarms_alarm_description" {
+  type        = string
+  description = "The string to format and use as the alarm description."
+  default     = "Average service %v utilization %v last %d minute(s) over %v period(s)"
 }
 
 variable "ecs_alarms_cpu_utilization_high_threshold" {
-  type        = string
+  type        = number
   description = "The maximum percentage of CPU utilization average"
-  default     = "80"
+  default     = 80
 }
 
 variable "ecs_alarms_cpu_utilization_high_evaluation_periods" {
-  type        = string
+  type        = number
   description = "Number of periods to evaluate for the alarm"
-  default     = "1"
+  default     = 1
 }
 
 variable "ecs_alarms_cpu_utilization_high_period" {
-  type        = string
+  type        = number
   description = "Duration in seconds to evaluate for the alarm"
-  default     = "300"
+  default     = 300
 }
 
 variable "ecs_alarms_cpu_utilization_high_alarm_actions" {
@@ -462,21 +528,21 @@ variable "ecs_alarms_cpu_utilization_high_ok_actions" {
 }
 
 variable "ecs_alarms_cpu_utilization_low_threshold" {
-  type        = string
+  type        = number
   description = "The minimum percentage of CPU utilization average"
-  default     = "20"
+  default     = 20
 }
 
 variable "ecs_alarms_cpu_utilization_low_evaluation_periods" {
-  type        = string
+  type        = number
   description = "Number of periods to evaluate for the alarm"
-  default     = "1"
+  default     = 1
 }
 
 variable "ecs_alarms_cpu_utilization_low_period" {
-  type        = string
+  type        = number
   description = "Duration in seconds to evaluate for the alarm"
-  default     = "300"
+  default     = 300
 }
 
 variable "ecs_alarms_cpu_utilization_low_alarm_actions" {
@@ -492,21 +558,21 @@ variable "ecs_alarms_cpu_utilization_low_ok_actions" {
 }
 
 variable "ecs_alarms_memory_utilization_high_threshold" {
-  type        = string
+  type        = number
   description = "The maximum percentage of Memory utilization average"
-  default     = "80"
+  default     = 80
 }
 
 variable "ecs_alarms_memory_utilization_high_evaluation_periods" {
-  type        = string
+  type        = number
   description = "Number of periods to evaluate for the alarm"
-  default     = "1"
+  default     = 1
 }
 
 variable "ecs_alarms_memory_utilization_high_period" {
-  type        = string
+  type        = number
   description = "Duration in seconds to evaluate for the alarm"
-  default     = "300"
+  default     = 300
 }
 
 variable "ecs_alarms_memory_utilization_high_alarm_actions" {
@@ -522,21 +588,21 @@ variable "ecs_alarms_memory_utilization_high_ok_actions" {
 }
 
 variable "ecs_alarms_memory_utilization_low_threshold" {
-  type        = string
+  type        = number
   description = "The minimum percentage of Memory utilization average"
-  default     = "20"
+  default     = 20
 }
 
 variable "ecs_alarms_memory_utilization_low_evaluation_periods" {
-  type        = string
+  type        = number
   description = "Number of periods to evaluate for the alarm"
-  default     = "1"
+  default     = 1
 }
 
 variable "ecs_alarms_memory_utilization_low_period" {
-  type        = string
+  type        = number
   description = "Duration in seconds to evaluate for the alarm"
-  default     = "300"
+  default     = 300
 }
 
 variable "ecs_alarms_memory_utilization_low_alarm_actions" {
@@ -556,9 +622,9 @@ variable "ecs_alarms_memory_utilization_low_ok_actions" {
 ###############
 
 variable "autoscaling_enabled" {
-  type        = string
+  type        = bool
   description = "A boolean to enable/disable Autoscaling policy for ECS Service"
-  default     = "false"
+  default     = false
 }
 
 variable "autoscaling_dimension" {
@@ -568,37 +634,37 @@ variable "autoscaling_dimension" {
 }
 
 variable "autoscaling_min_capacity" {
-  type        = string
+  type        = number
   description = "Minimum number of running instances of a Service"
-  default     = "1"
+  default     = 1
 }
 
 variable "autoscaling_max_capacity" {
-  type        = string
+  type        = number
   description = "Maximum number of running instances of a Service"
-  default     = "2"
+  default     = 2
 }
 
 variable "autoscaling_scale_up_adjustment" {
-  type        = string
+  type        = number
   description = "Scaling adjustment to make during scale up event"
-  default     = "1"
+  default     = 1
 }
 
 variable "autoscaling_scale_up_cooldown" {
-  type        = string
+  type        = number
   description = "Period (in seconds) to wait between scale up events"
-  default     = "60"
+  default     = 60
 }
 
 variable "autoscaling_scale_down_adjustment" {
-  type        = string
+  type        = number
   description = "Scaling adjustment to make during scale down event"
-  default     = "-1"
+  default     = -1
 }
 
 variable "autoscaling_scale_down_cooldown" {
-  type        = string
+  type        = number
   description = "Period (in seconds) to wait between scale down events"
-  default     = "300"
+  default     = 300
 }
