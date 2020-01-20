@@ -19,7 +19,7 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                       = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.21.0"
+  source                       = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.23.0"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -47,6 +47,7 @@ module "container" {
   stop_timeout                 = var.stop_timeout
   privileged                   = var.privileged
   system_controls              = var.system_controls
+  linux_parameters             = var.linux_parameters
 
   port_mappings = concat([
     {
@@ -83,7 +84,7 @@ locals {
 }
 
 module "task" {
-  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.18.0"
+  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.20.0"
 
   name      = var.name
   namespace = var.project
@@ -93,6 +94,7 @@ module "task" {
   container_definition_json          = local.container_definitions_json
   ecs_load_balancers                 = local.ecs_load_balancers
   alb_security_group                 = local.alb_security_group
+  use_alb_security_group             = var.use_ingress_security_group
   container_port                     = var.container_port
   volumes                            = var.volumes
   launch_type                        = var.launch_type
@@ -118,6 +120,8 @@ module "task" {
   deployment_controller_type         = var.deployment_controller_type
   deployment_maximum_percent         = var.deployment_maximum_percent
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
+  enable_ecs_managed_tags            = var.enable_ecs_managed_tags
+  capacity_provider_strategies       = var.capacity_provider_strategies
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {

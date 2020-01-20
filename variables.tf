@@ -165,6 +165,12 @@ variable "ingress_security_group_id" {
   description = "Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable."
 }
 
+variable "use_ingress_security_group" {
+  default     = false
+  type        = bool
+  description = "Whether to use ingress security group. When turned on use `ingress_security_group_id` to configure default ingress security group id."
+}
+
 variable "ecs_default_alb_enabled" {
   default     = true
   type        = bool
@@ -175,6 +181,22 @@ variable "propagate_tags" {
   type        = string
   default     = "SERVICE"
   description = "Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK_DEFINITION."
+}
+
+variable "enable_ecs_managed_tags" {
+  type        = bool
+  description = "Specifies whether to enable Amazon ECS managed tags for the tasks within the service"
+  default     = true
+}
+
+variable "capacity_provider_strategies" {
+  type = list(object({
+    capacity_provider = string
+    weight            = number
+    base              = number
+  }))
+  description = "The capacity provider strategies to use for the service. See `capacity_provider_strategy` configuration block: https://www.terraform.io/docs/providers/aws/r/ecs_service.html#capacity_provider_strategy"
+  default     = []
 }
 
 variable "ecs_load_balancers" {
@@ -287,6 +309,32 @@ variable "firelens_configuration" {
   default = null
 }
 
+# https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LinuxParameters.html
+variable "linux_parameters" {
+  type = object({
+    capabilities = object({
+      add  = list(string)
+      drop = list(string)
+    })
+    devices = list(object({
+      containerPath = string
+      hostPath      = string
+      permissions   = list(string)
+    }))
+    initProcessEnabled = bool
+    maxSwap            = number
+    sharedMemorySize   = number
+    swappiness         = number
+    tmpfs = list(object({
+      containerPath = string
+      mountOptions  = list(string)
+      size          = number
+    }))
+  })
+  description = "Linux-specific modifications that are applied to the container, such as Linux kernel capabilities. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LinuxParameters.html"
+  default     = null
+}
+
 variable "log_configuration" {
   type = object({
     logDriver = string
@@ -358,8 +406,11 @@ variable "user" {
 }
 
 variable "container_depends_on" {
-  type        = list(string)
-  description = "The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed"
+  type = list(object({
+    containerName = string
+    condition     = string
+  }))
+  description = "The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed. The condition can be one of START, COMPLETE, SUCCESS or HEALTHY"
   default     = null
 }
 

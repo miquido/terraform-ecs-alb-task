@@ -22,7 +22,7 @@ Available targets:
   help                                Help screen
   help/all                            Display help for all targets
   help/short                          This help short screen
-  lint                                Lint terraform code
+  lint                                Lint Terraform code
 
 ```
 ## Inputs
@@ -41,9 +41,10 @@ Available targets:
 | autoscaling_scale_down_cooldown | Period (in seconds) to wait between scale down events | number | `300` | no |
 | autoscaling_scale_up_adjustment | Scaling adjustment to make during scale up event | number | `1` | no |
 | autoscaling_scale_up_cooldown | Period (in seconds) to wait between scale up events | number | `60` | no |
+| capacity_provider_strategies | The capacity provider strategies to use for the service. See `capacity_provider_strategy` configuration block: https://www.terraform.io/docs/providers/aws/r/ecs_service.html#capacity_provider_strategy | object | `<list>` | no |
 | command | The command that is passed to the container | list(string) | `null` | no |
 | container_cpu | The number of cpu units to reserve for the container. This is optional for tasks using Fargate launch type and the total amount of container_cpu of all containers in a task will need to be lower than the task-level cpu value | number | `null` | no |
-| container_depends_on | The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed | list(string) | `null` | no |
+| container_depends_on | The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed. The condition can be one of START, COMPLETE, SUCCESS or HEALTHY | object | `null` | no |
 | container_image | The image used to start the container. Images in the Docker Hub registry available by default | string | - | yes |
 | container_memory | The amount of memory (in MiB) to allow the container to use. This is a hard limit, if the container attempts to exceed the container_memory, the container is killed. This field is optional for Fargate launch type and the total amount of container_memory of all containers in a task will need to be lower than the task memory value | number | `null` | no |
 | container_memory_reservation | The amount of memory (in MiB) to reserve for the container. If container needs to exceed this threshold, it can do so up to the set container_memory hard limit | number | `null` | no |
@@ -81,6 +82,7 @@ Available targets:
 | ecs_cluster_name | The Name of the ECS cluster where service will be provisioned. Required for alarms. | string | `` | no |
 | ecs_default_alb_enabled | Whether to create default load balancer configuration with attached provided ALB Target group to main container. Requires setting `alb_target_group_arn` variable. | bool | `true` | no |
 | ecs_load_balancers | A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html | object | `<list>` | no |
+| enable_ecs_managed_tags | Specifies whether to enable Amazon ECS managed tags for the tasks within the service | bool | `true` | no |
 | entrypoint | The entry point that is passed to the container | list(string) | `null` | no |
 | environment | Environment name | string | `` | no |
 | envs | The environment variables to pass to the container. This is a list of maps | object | `null` | no |
@@ -92,6 +94,7 @@ Available targets:
 | ingress_security_group_id | Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable. | string | `null` | no |
 | launch_type | The launch type on which to run your service. Valid values are `EC2` and `FARGATE` | string | `FARGATE` | no |
 | links | List of container names this container can communicate with without port mappings | list(string) | `null` | no |
+| linux_parameters | Linux-specific modifications that are applied to the container, such as Linux kernel capabilities. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LinuxParameters.html | object | `null` | no |
 | log_configuration | Log configuration options to send to a custom log driver for the container. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LogConfiguration.html | object | `null` | no |
 | log_retention | Specifies the number of days you want to retain log events in the specified log group. Option has no effect when custom "log_configuration" variable is specified. | number | `7` | no |
 | logs_region | AWS Logs Region | string | - | yes |
@@ -122,6 +125,7 @@ Available targets:
 | task_memory | The amount of memory (in MiB) used by the task. If using Fargate launch type `task_memory` must match supported cpu value (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | number | `512` | no |
 | task_placement_constraints | A set of placement constraints rules that are taken into consideration during task placement. Maximum number of placement_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#placement-constraints-arguments | object | `<list>` | no |
 | ulimits | Container ulimit settings. This is a list of maps, where each map should contain "name", "hardLimit" and "softLimit" | object | `null` | no |
+| use_ingress_security_group | Whether to use ingress security group. When turned on use `ingress_security_group_id` to configure default ingress security group id. | bool | `false` | no |
 | user | The user to run as inside the container. Can be any of these formats: user, user:group, uid, uid:gid, user:gid, uid:group | string | `null` | no |
 | volumes | Task volume definitions as list of configuration objects | object | `<list>` | no |
 | volumes_from | A list of VolumesFrom maps which contain "sourceContainer" (name of the container that has the volumes to mount) and "readOnly" (whether the container can write to the volume) | object | `null` | no |
@@ -167,7 +171,7 @@ Available targets:
 
 ## Copyright
 
-Copyright © 2017-2019 [Miquido](https://miquido.com)
+Copyright © 2017-2020 [Miquido](https://miquido.com)
 
 
 
