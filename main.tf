@@ -84,7 +84,7 @@ locals {
 }
 
 module "task" {
-  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.20.0"
+  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.31.0"
 
   name      = var.name
   namespace = var.project
@@ -122,6 +122,7 @@ module "task" {
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   capacity_provider_strategies       = var.capacity_provider_strategies
+  task_role_arn                      = var.task_role_arn
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {

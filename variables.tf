@@ -719,3 +719,9 @@ variable "autoscaling_scale_down_cooldown" {
   description = "Period (in seconds) to wait between scale down events"
   default     = 300
 }
+
+variable "task_role_arn" {
+  type        = string
+  description = "The ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services"
+  default     = ""
+}
