@@ -19,7 +19,7 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                       = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.23.0"
+  source                       = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.39.0"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -69,7 +69,7 @@ module "container" {
 }
 
 locals {
-  container_definitions      = compact(concat(list(module.container.json_map), var.additional_containers))
+  container_definitions      = compact(concat(list(module.container.json_map_encoded), var.additional_containers))
   container_definitions_json = "[${join(",", local.container_definitions)}]"
 
   ecs_default_alb = var.ecs_default_alb_enabled ? [{
@@ -84,7 +84,7 @@ locals {
 }
 
 module "task" {
-  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.31.0"
+  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.36.0"
 
   name      = var.name
   namespace = var.project
@@ -151,7 +151,7 @@ locals {
 }
 
 module "ecs-service-alarms" {
-  source            = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.5.0"
+  source            = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.6.0"
   enabled           = var.ecs_alarms_enabled
   name              = var.name
   namespace         = var.project
@@ -207,7 +207,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.2.0"
+  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.3.0"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project
