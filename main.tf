@@ -8,6 +8,14 @@ module "label" {
 
 locals {
   use_default_log_config = var.log_configuration == null
+
+  default_log_configuration_secrets = length(var.secrets) > 0 ? [
+    for key in var.secrets :
+    {
+      name      = "${lookup(key, "name")}_SECRET"
+      valueFrom = lookup(key, "valueFrom")
+    }
+  ] : var.secrets
 }
 
 resource "aws_cloudwatch_log_group" "app" {
@@ -59,7 +67,7 @@ module "container" {
 
   log_configuration = local.use_default_log_config ? {
     logDriver     = "awslogs"
-    secretOptions = var.secrets
+    secretOptions = local.default_log_configuration_secrets
     options = {
       awslogs-region        = var.logs_region
       awslogs-group         = join("", aws_cloudwatch_log_group.app.*.name)
