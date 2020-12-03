@@ -59,7 +59,7 @@ module "container" {
 
   log_configuration = local.use_default_log_config ? {
     logDriver     = "awslogs"
-    secretOptions = null
+    secretOptions = var.secrets
     options = {
       awslogs-region        = var.logs_region
       awslogs-group         = join("", aws_cloudwatch_log_group.app.*.name)
