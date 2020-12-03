@@ -56,6 +56,7 @@ module "container" {
   privileged                   = var.privileged
   system_controls              = var.system_controls
   linux_parameters             = var.linux_parameters
+  extra_hosts                  = var.extra_hosts
 
   port_mappings = concat([
     {

@@ -132,7 +132,7 @@ Available targets:
 | volumes_from | A list of VolumesFrom maps which contain "sourceContainer" (name of the container that has the volumes to mount) and "readOnly" (whether the container can write to the volume) | <pre>list(object({<br>    sourceContainer = string<br>    readOnly        = bool<br>  }))</pre> | `null` | no |
 | vpc_id | The VPC ID where resources are created | `string` | n/a | yes |
 | working_directory | The working directory to run commands inside the container | `string` | `null` | no |
-
+| extra_hosts | A list of hostnames and IP address mappings to append to the /etc/hosts file on the container. This is a list of maps | <pre>list(object({<br>    ipAddress = string<br>    hostname  = string<br>  }))</pre> | `null` | no |
 ## Outputs
 
 | Name | Description |
