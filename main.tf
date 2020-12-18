@@ -1,5 +1,5 @@
 module "label" {
-  source    = "git@github.com:cloudposse/terraform-terraform-label?ref=tags/0.5.0"
+  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.5.0"
   name      = var.name
   namespace = var.project
   stage     = var.environment
@@ -27,7 +27,7 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                       = "git@github.com:cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.45.2"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.45.2"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -93,7 +93,7 @@ locals {
 }
 
 module "task" {
-  source = "git@github.com:cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.42.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.42.0"
 
   name      = var.name
   namespace = var.project
@@ -160,7 +160,7 @@ locals {
 }
 
 module "ecs-service-alarms" {
-  source            = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.8.1"
+  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.8.1"
   enabled           = var.ecs_alarms_enabled
   name              = var.name
   namespace         = var.project
@@ -216,7 +216,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git@github.com:cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.4.2"
+  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.4.2"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project
