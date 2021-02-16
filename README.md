@@ -30,6 +30,24 @@ Available targets:
 |------|---------|
 | aws | n/a |
 
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| autoscaling | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.7.0 |  |
+| container | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.49.2 |  |
+| ecs-service-alarms | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.12.1 |  |
+| label | git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.6.0 |  |
+| task | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.47.0 |  |
+
+## Resources
+
+| Name |
+|------|
+| [aws_cloudwatch_log_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) |
+| [aws_iam_policy_document](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) |
+| [aws_iam_role_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
@@ -104,11 +122,11 @@ Available targets:
 | log\_configuration | Log configuration options to send to a custom log driver for the container. For more details, see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LogConfiguration.html | <pre>object({<br>    logDriver = string<br>    options   = map(string)<br>    secretOptions = list(object({<br>      name      = string<br>      valueFrom = string<br>    }))<br>  })</pre> | `null` | no |
 | log\_retention | Specifies the number of days you want to retain log events in the specified log group. Option has no effect when custom "log\_configuration" variable is specified. | `number` | `7` | no |
 | logs\_region | AWS Logs Region | `string` | n/a | yes |
-| mount\_points | Container mount points. This is a list of maps, where each map should contain a `containerPath` and `sourceVolume`. The `readOnly` key is optional. | `list` | `[]` | no |
+| mount\_points | Container mount points. This is a list of maps, where each map should contain a `containerPath` and `sourceVolume`. The `readOnly` key is optional. | `list(any)` | `[]` | no |
 | name | Resource common name | `string` | n/a | yes |
 | network\_mode | The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type` | `string` | `"awsvpc"` | no |
 | ordered\_placement\_strategy | Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence. The maximum number of ordered\_placement\_strategy blocks is 5. See `ordered_placement_strategy` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#ordered_placement_strategy-1 | <pre>list(object({<br>    type  = string<br>    field = string<br>  }))</pre> | `[]` | no |
-| platform\_version | The platform version on which to run your service. Only applicable for launch\_type set to FARGATE. More information about Fargate platform versions can be found in the AWS ECS User Guide. | `string` | `"LATEST"` | no |
+| platform\_version | The platform version on which to run your service. Only applicable for launch\_type set to FARGATE. More information about Fargate platform versions can be found in the AWS ECS User Guide. | `string` | `"1.4.0"` | no |
 | privileged | When this variable is `true`, the container is given elevated privileges on the host container instance (similar to the root user). This parameter is not supported for Windows containers or tasks using the Fargate launch type. Due to how Terraform type casts booleans in json it is required to double quote this value | `string` | `null` | no |
 | project | Account/Project Name | `string` | n/a | yes |
 | propagate\_tags | Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK\_DEFINITION. | `string` | `"SERVICE"` | no |
@@ -157,7 +175,6 @@ Available targets:
 | task\_exec\_role\_name | ECS Task role name |
 | task\_role\_arn | ECS Task role ARN |
 | task\_role\_name | ECS Task role name |
-
 <!-- markdownlint-restore -->
 
 
@@ -179,7 +196,7 @@ Available targets:
 
 ## Copyright
 
-Copyright © 2017-2020 [Miquido](https://miquido.com)
+Copyright © 2017-2021 [Miquido](https://miquido.com)
 
 
 

@@ -511,7 +511,7 @@ variable "service_registries" {
 variable "platform_version" {
   type        = string
   description = "The platform version on which to run your service. Only applicable for launch_type set to FARGATE. More information about Fargate platform versions can be found in the AWS ECS User Guide."
-  default     = "LATEST"
+  default     = "1.4.0"
 }
 
 variable "scheduling_strategy" {

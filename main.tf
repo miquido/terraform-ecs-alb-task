@@ -1,5 +1,5 @@
 module "label" {
-  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.5.1"
+  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.6.0"
   name      = var.name
   namespace = var.project
   stage     = var.environment
@@ -27,7 +27,7 @@ resource "aws_cloudwatch_log_group" "app" {
 
 # see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.46.2"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.49.2"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -93,7 +93,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.44.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.47.0"
 
   name      = var.name
   namespace = var.project
@@ -160,7 +160,7 @@ locals {
 }
 
 module "ecs-service-alarms" {
-  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.8.1"
+  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.12.1"
   enabled           = var.ecs_alarms_enabled
   name              = var.name
   namespace         = var.project
@@ -216,7 +216,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.5.1"
+  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.7.0"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project
@@ -233,4 +233,3 @@ module "autoscaling" {
   scale_up_adjustment   = var.autoscaling_scale_up_adjustment
   scale_up_cooldown     = var.autoscaling_scale_up_cooldown
 }
-
