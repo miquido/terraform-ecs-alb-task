@@ -96,7 +96,7 @@ variable "envs" {
 
   description = "The environment variables to pass to the container. This is a list of maps"
 
-  default = null
+  default = []
 }
 
 variable "extra_hosts" {
