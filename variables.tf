@@ -271,7 +271,7 @@ variable "working_directory" {
 
 variable "additional_containers" {
   type        = list(string)
-  description = "Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map)"
+  description = "Additional container definitions to include in the task. List of JSON Map formats should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json_map_encoded)"
   default     = [""]
 }
 
