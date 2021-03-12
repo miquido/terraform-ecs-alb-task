@@ -33,7 +33,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| additional\_containers | Additional container definitions to include in the task. JSON Map format should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json\_map) | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
+| additional\_containers | Additional container definitions to include in the task. List of JSON Map formats should be used (see cloudposse/terraform-aws-ecs-container-definition module output: json\_map\_encoded) | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
 | additional\_port\_mappings | The port mappings to configure for the container. This is a list of maps. Each map should contain "containerPort", "hostPort", and "protocol", where "protocol" is one of "tcp" or "udp". If using containers in a task with the awsvpc or host network mode, the hostPort can either be left blank or set to the same value as the containerPort | <pre>list(object({<br>    containerPort = number<br>    hostPort      = number<br>    protocol      = string<br>  }))</pre> | `[]` | no |
 | alb\_target\_group\_arn | The ALB target group ARN for the ECS service | `string` | `""` | no |
 | assign\_public\_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | `bool` | `false` | no |
