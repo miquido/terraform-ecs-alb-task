@@ -740,3 +740,9 @@ variable "task_role_arn" {
   description = "The ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services"
   default     = ""
 }
+
+variable "exec_enabled" {
+  type        = bool
+  description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
+  default     = false
+}

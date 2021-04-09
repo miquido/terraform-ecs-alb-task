@@ -1,5 +1,5 @@
 module "label" {
-  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.6.0"
+  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.7.0"
   name      = var.name
   namespace = var.project
   stage     = var.environment
@@ -25,9 +25,8 @@ resource "aws_cloudwatch_log_group" "app" {
   retention_in_days = var.log_retention
 }
 
-# see https://github.com/cloudposse/terraform-aws-ecs-container-definition/blob/master/variables.tf
 module "container" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.49.2"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.56.0"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -93,7 +92,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.47.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.55.0"
 
   name      = var.name
   namespace = var.project
@@ -132,6 +131,7 @@ module "task" {
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   capacity_provider_strategies       = var.capacity_provider_strategies
   task_role_arn                      = var.task_role_arn
+  exec_enabled                       = var.exec_enabled
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
