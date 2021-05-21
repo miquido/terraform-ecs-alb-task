@@ -77,7 +77,7 @@ module "container" {
 }
 
 locals {
-  container_definitions      = compact(concat(tolist(module.container.json_map_encoded), var.additional_containers))
+  container_definitions      = compact(concat([module.container.json_map_encoded], var.additional_containers))
   container_definitions_json = "[${join(",", local.container_definitions)}]"
 
   ecs_default_alb = var.ecs_default_alb_enabled ? [{
