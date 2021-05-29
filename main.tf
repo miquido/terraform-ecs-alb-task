@@ -92,7 +92,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.55.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.55.1"
 
   name      = var.name
   namespace = var.project
