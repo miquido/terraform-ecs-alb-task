@@ -547,6 +547,12 @@ variable "service_placement_constraints" {
   default     = []
 }
 
+variable "force_new_deployment" {
+  type        = bool
+  description = "Enable to force a new task deployment of the service."
+  default     = false
+}
+
 ##########
 # ALARMS
 ##########

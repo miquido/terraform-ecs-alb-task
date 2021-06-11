@@ -132,6 +132,7 @@ module "task" {
   capacity_provider_strategies       = var.capacity_provider_strategies
   task_role_arn                      = var.task_role_arn
   exec_enabled                       = var.exec_enabled
+  force_new_deployment               = var.force_new_deployment
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
