@@ -26,7 +26,7 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "container" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.56.0"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.57.0"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
