@@ -88,11 +88,10 @@ locals {
   }] : []
 
   ecs_load_balancers = concat(local.ecs_default_alb, var.ecs_load_balancers)
-  alb_security_group = var.ingress_security_group_id == null ? var.security_group_ids[0] : var.ingress_security_group_id
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.56.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.57.0"
 
   name      = var.name
   namespace = var.project
@@ -101,9 +100,6 @@ module "task" {
 
   container_definition_json          = local.container_definitions_json
   ecs_load_balancers                 = local.ecs_load_balancers
-  alb_security_group                 = local.alb_security_group
-  use_alb_security_group             = var.use_ingress_security_group
-  container_port                     = var.container_port
   volumes                            = var.volumes
   launch_type                        = var.launch_type
   network_mode                       = var.network_mode
@@ -121,7 +117,7 @@ module "task" {
   ordered_placement_strategy         = var.ordered_placement_strategy
   task_placement_constraints         = var.task_placement_constraints
   service_placement_constraints      = var.service_placement_constraints
-  security_group_ids                 = var.security_group_ids
+  security_groups                    = var.security_group_ids
   subnet_ids                         = var.subnet_ids
   assign_public_ip                   = var.assign_public_ip
   ignore_changes_task_definition     = var.ignore_changes_task_definition
@@ -133,6 +129,8 @@ module "task" {
   task_role_arn                      = var.task_role_arn
   exec_enabled                       = var.exec_enabled
   force_new_deployment               = var.force_new_deployment
+  security_group_description         = var.security_group_description
+  security_group_rules               = var.security_group_rules
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {

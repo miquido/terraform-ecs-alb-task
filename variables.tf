@@ -167,18 +167,6 @@ variable "alb_target_group_arn" {
   description = "The ALB target group ARN for the ECS service"
 }
 
-variable "ingress_security_group_id" {
-  type        = string
-  default     = null
-  description = "Default ingress security group. Usually default LB security group. If not set, it defaults to first security group id in `security_groups_ids` variable."
-}
-
-variable "use_ingress_security_group" {
-  default     = false
-  type        = bool
-  description = "Whether to use ingress security group. When turned on use `ingress_security_group_id` to configure default ingress security group id."
-}
-
 variable "ecs_default_alb_enabled" {
   default     = true
   type        = bool
@@ -751,4 +739,43 @@ variable "exec_enabled" {
   type        = bool
   description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
   default     = false
+}
+
+variable "security_group_description" {
+  type        = string
+  default     = "ECS service Security Group"
+  description = "The Security Group description."
+}
+
+variable "security_group_use_name_prefix" {
+  type        = bool
+  default     = false
+  description = "Whether to create a default Security Group with unique name beginning with the normalized prefix."
+}
+
+variable "security_group_rules" {
+  type = list(any)
+  default = [
+    {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow all outbound traffic"
+    },
+    {
+      type        = "ingress"
+      from_port   = 8
+      to_port     = 0
+      protocol    = "icmp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Enables ping command from anywhere, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-ping"
+    }
+  ]
+  description = <<-EOT
+    A list of maps of Security Group rules.
+    The values of map is fully complated with `aws_security_group_rule` resource.
+    To get more info see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule .
+  EOT
 }

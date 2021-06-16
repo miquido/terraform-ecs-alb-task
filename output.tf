@@ -18,9 +18,9 @@ output "task_role_arn" {
   value       = module.task.task_role_arn
 }
 
-output "service_security_group_id" {
+output "security_group_id" {
   description = "Security Group ID of the ECS task"
-  value       = module.task.service_security_group_id
+  value       = module.task.security_group_id
 }
 
 output "task_definition_family" {
