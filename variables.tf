@@ -404,7 +404,7 @@ variable "container_depends_on" {
     condition     = string
   }))
   description = "The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed. The condition can be one of START, COMPLETE, SUCCESS or HEALTHY"
-  default     = null
+  default     = []
 }
 
 variable "docker_labels" {
@@ -539,6 +539,50 @@ variable "force_new_deployment" {
   type        = bool
   description = "Enable to force a new task deployment of the service."
   default     = false
+}
+
+#############
+# APP MESH
+#############
+
+variable "app_mesh_egress_ignored_ports" {
+  type        = string
+  default     = ""
+  description = "App mesh egress ignored ports"
+}
+
+variable "app_mesh_enable" {
+  type        = bool
+  default     = false
+  description = "Should app mesh resources be created for this service"
+}
+
+variable "app_mesh_aws_service_discovery_private_dns_namespace" {
+  type = object({
+    name        = string
+    id          = string
+    hosted_zone = string
+  })
+  default     = null
+  description = "app mesh private DNS namespace"
+}
+
+variable "app_mesh_mesh_id" {
+  type        = string
+  default     = null
+  description = "app mesh id to create service entry"
+}
+
+variable "app_mesh_route53_zone_id" {
+  type        = string
+  default     = null
+  description = "app_mesh route id to create service entry"
+}
+
+variable "app_mesh_health_check_path" {
+  type        = string
+  default     = null
+  description = "service health check path for app mesh"
 }
 
 ##########
