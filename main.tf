@@ -17,8 +17,8 @@ locals {
     }
   ] : var.secrets
   app_mesh_count                = var.app_mesh_enable ? 1 : 0
-  appmesh_domain                = "${var.environment}.app.mesh.local"
-  appmesh_cloud_map_domain      = "${var.environment}.cloud.map.local"
+  appmesh_domain                = var.app_mesh_enable ? var.app_mesh_route53_zone.name : ""
+  appmesh_cloud_map_domain      = var.app_mesh_enable ? var.app_mesh_aws_service_discovery_private_dns_namespace.name : ""
   appmesh_service_dns           = "${var.name}.${local.appmesh_domain}"
   appmesh_service_cloud_map_dns = replace(local.appmesh_service_dns, local.appmesh_domain, local.appmesh_cloud_map_domain)
 
@@ -263,7 +263,7 @@ module "appmesh" {
   app_health_check_path    = var.app_mesh_health_check_path
   app_port                 = var.container_port
   appmesh_domain           = local.appmesh_domain
-  appmesh_name             = var.app_mesh_mesh_id
+  appmesh_name             = var.app_mesh_id
   appmesh_service_name     = var.name
   cloud_map_dns            = local.appmesh_service_cloud_map_dns
   cloud_map_hosted_zone_id = var.app_mesh_aws_service_discovery_private_dns_namespace.hosted_zone
@@ -271,5 +271,5 @@ module "appmesh" {
   map_id                   = var.app_mesh_aws_service_discovery_private_dns_namespace.id
   tags                     = var.tags
   task_role_name           = module.task.task_role_name
-  zone_id                  = var.app_mesh_route53_zone_id
+  zone_id                  = var.app_mesh_route53_zone.id
 }

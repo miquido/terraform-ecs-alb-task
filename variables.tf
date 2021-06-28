@@ -567,16 +567,19 @@ variable "app_mesh_aws_service_discovery_private_dns_namespace" {
   description = "app mesh private DNS namespace"
 }
 
-variable "app_mesh_mesh_id" {
+variable "app_mesh_id" {
   type        = string
   default     = null
   description = "app mesh id to create service entry"
 }
 
-variable "app_mesh_route53_zone_id" {
-  type        = string
+variable "app_mesh_route53_zone" {
+  type = object({
+    id   = string
+    name = string
+  })
   default     = null
-  description = "app_mesh route id to create service entry"
+  description = "app_mesh route zone to create service entry"
 }
 
 variable "app_mesh_health_check_path" {
