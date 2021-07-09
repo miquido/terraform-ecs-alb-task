@@ -13,4 +13,4 @@ updates:
       interval: "daily"
     ignore:
       - dependency-name: "task"
-        versions: ["0.57.0", "0.58.0"]
+        versions: ["0.58.0"]
