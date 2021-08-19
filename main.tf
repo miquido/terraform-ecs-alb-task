@@ -101,7 +101,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.57.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.58.0"
 
   name      = var.name
   namespace = var.project
@@ -141,6 +141,8 @@ module "task" {
   force_new_deployment               = var.force_new_deployment
   security_group_description         = var.security_group_description
   security_group_rules               = var.security_group_rules
+  circuit_breaker_deployment_enabled = var.circuit_breaker_deployment_enabled
+  circuit_breaker_rollback_enabled   = var.circuit_breaker_rollback_enabled
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {

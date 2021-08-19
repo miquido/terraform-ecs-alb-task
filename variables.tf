@@ -826,3 +826,15 @@ variable "security_group_rules" {
     To get more info see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule .
   EOT
 }
+
+variable "circuit_breaker_deployment_enabled" {
+  type        = bool
+  description = "Whether to enable the deployment circuit breaker logic for the service"
+  default     = false
+}
+
+variable "circuit_breaker_rollback_enabled" {
+  type        = bool
+  description = "Whether to enable Amazon ECS to roll back the service if a service deployment fails"
+  default     = false
+}
