@@ -227,7 +227,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.7.1"
+  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.7.2"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project
