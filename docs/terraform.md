@@ -19,13 +19,13 @@
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | tags/1.0.2 |
-| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git | tags/0.7.0 |
-| <a name="module_container"></a> [container](#module\_container) | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition | tags/0.57.0 |
-| <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git | tags/1.1.3 |
-| <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | tags/0.12.1 |
-| <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label | tags/0.8.0 |
-| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | tags/0.57.0 |
+| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | 1.0.3 |
+| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git | 0.7.2 |
+| <a name="module_container"></a> [container](#module\_container) | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition | 0.58.1 |
+| <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git | 1.1.7 |
+| <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | 0.12.1 |
+| <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label | 0.8.0 |
+| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.58.0 |
 
 ## Resources
 
@@ -58,6 +58,8 @@
 | <a name="input_autoscaling_scale_up_adjustment"></a> [autoscaling\_scale\_up\_adjustment](#input\_autoscaling\_scale\_up\_adjustment) | Scaling adjustment to make during scale up event | `number` | `1` | no |
 | <a name="input_autoscaling_scale_up_cooldown"></a> [autoscaling\_scale\_up\_cooldown](#input\_autoscaling\_scale\_up\_cooldown) | Period (in seconds) to wait between scale up events | `number` | `60` | no |
 | <a name="input_capacity_provider_strategies"></a> [capacity\_provider\_strategies](#input\_capacity\_provider\_strategies) | The capacity provider strategies to use for the service. See `capacity_provider_strategy` configuration block: https://www.terraform.io/docs/providers/aws/r/ecs_service.html#capacity_provider_strategy | <pre>list(object({<br>    capacity_provider = string<br>    weight            = number<br>    base              = number<br>  }))</pre> | `[]` | no |
+| <a name="input_circuit_breaker_deployment_enabled"></a> [circuit\_breaker\_deployment\_enabled](#input\_circuit\_breaker\_deployment\_enabled) | Whether to enable the deployment circuit breaker logic for the service | `bool` | `false` | no |
+| <a name="input_circuit_breaker_rollback_enabled"></a> [circuit\_breaker\_rollback\_enabled](#input\_circuit\_breaker\_rollback\_enabled) | Whether to enable Amazon ECS to roll back the service if a service deployment fails | `bool` | `false` | no |
 | <a name="input_command"></a> [command](#input\_command) | The command that is passed to the container | `list(string)` | `null` | no |
 | <a name="input_container_cpu"></a> [container\_cpu](#input\_container\_cpu) | The number of cpu units to reserve for the container. This is optional for tasks using Fargate launch type and the total amount of container\_cpu of all containers in a task will need to be lower than the task-level cpu value | `number` | `null` | no |
 | <a name="input_container_depends_on"></a> [container\_depends\_on](#input\_container\_depends\_on) | The dependencies defined for container startup and shutdown. A container can contain multiple dependencies. When a dependency is defined for container startup, for container shutdown it is reversed. The condition can be one of START, COMPLETE, SUCCESS or HEALTHY | <pre>list(object({<br>    containerName = string<br>    condition     = string<br>  }))</pre> | `[]` | no |

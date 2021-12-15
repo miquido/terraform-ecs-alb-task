@@ -25,5 +25,5 @@ module "task" {
   vpc_id               = ""
   subnet_ids           = []
   security_group_ids   = []
-  security_group_rules = aws_security_group_rule.example
+  security_group_rules = [aws_security_group_rule.example]
 }

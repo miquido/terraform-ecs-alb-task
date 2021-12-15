@@ -1,5 +1,5 @@
 module "label" {
-  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=tags/0.8.0"
+  source    = "git::https://github.com/cloudposse/terraform-terraform-label?ref=0.8.0"
   name      = var.name
   namespace = var.project
   stage     = var.environment
@@ -35,7 +35,7 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "container" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=tags/0.58.1"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.58.1"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -101,7 +101,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=tags/0.58.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=0.58.0"
 
   name      = var.name
   namespace = var.project
@@ -171,7 +171,7 @@ locals {
 }
 
 module "ecs-service-alarms" {
-  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=tags/0.12.1"
+  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=0.12.1"
   enabled           = var.ecs_alarms_enabled
   name              = var.name
   namespace         = var.project
@@ -227,7 +227,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=tags/0.7.2"
+  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=0.7.2"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project
@@ -249,7 +249,7 @@ module "autoscaling" {
 
 module "ecs-alb-task-envoy-proxy" {
   count                             = local.app_mesh_count
-  source                            = "git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git?ref=tags/1.1.6"
+  source                            = "git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git?ref=1.1.7"
   appmesh-resource-arn              = module.appmesh[count.index].appmesh-resource-arn
   awslogs-group                     = join("", aws_cloudwatch_log_group.app.*.name)
   awslogs-region                    = var.logs_region
@@ -261,7 +261,7 @@ module "ecs-alb-task-envoy-proxy" {
 
 module "appmesh" {
   count                    = local.app_mesh_count
-  source                   = "git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git?ref=tags/1.0.3"
+  source                   = "git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git?ref=1.0.3"
   app_health_check_path    = var.app_mesh_health_check_path
   app_port                 = var.container_port
   appmesh_domain           = local.appmesh_domain
