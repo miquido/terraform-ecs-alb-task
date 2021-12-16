@@ -261,7 +261,7 @@ module "ecs-alb-task-envoy-proxy" {
 
 module "appmesh" {
   count                    = local.app_mesh_count
-  source                   = "git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git?ref=1.0.3"
+  source                   = "git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git?ref=1.0.4"
   app_health_check_path    = var.app_mesh_health_check_path
   app_port                 = var.container_port
   appmesh_domain           = local.appmesh_domain
