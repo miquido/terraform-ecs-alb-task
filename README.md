@@ -23,19 +23,19 @@ Available targets:
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 3.34 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.7 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 3.34 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.7 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | 1.0.4 |
+| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | 1.0.6 |
 | <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git | 0.7.3 |
 | <a name="module_container"></a> [container](#module\_container) | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition | 0.58.1 |
 | <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git | 1.1.7 |
