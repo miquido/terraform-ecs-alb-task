@@ -227,6 +227,22 @@ variable "security_group_ids" {
   type        = list(string)
 }
 
+variable "alb_security_group" {
+  type        = string
+  description = "Security group of the ALB"
+  default     = ""
+}
+
+variable "runtime_platform" {
+  type        = list(map(string))
+  description = <<-EOT
+    Zero or one runtime platform configurations that containers in your task may use.
+    Map of strings with optional keys `operating_system_family` and `cpu_architecture`.
+    See `runtime_platform` docs https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition#runtime_platform
+    EOT
+  default     = []
+}
+
 variable "health_check_grace_period_seconds" {
   type        = string
   description = "Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers"
@@ -267,6 +283,12 @@ variable "ignore_changes_task_definition" {
   type        = bool
   description = "Whether to ignore changes in container definition and task definition in the ECS service"
   default     = true
+}
+
+variable "ignore_changes_desired_count" {
+  type        = bool
+  description = "Whether to ignore changes for desired count in the ECS service"
+  default     = false
 }
 
 variable "log_retention" {
@@ -449,17 +471,10 @@ variable "network_mode" {
   default     = "awsvpc"
 }
 
-variable "volumes" {
+variable "efs_volumes" {
   type = list(object({
     host_path = string
     name      = string
-    docker_volume_configuration = list(object({
-      autoprovision = bool
-      driver        = string
-      driver_opts   = map(string)
-      labels        = map(string)
-      scope         = string
-    }))
     efs_volume_configuration = list(object({
       file_system_id          = string
       root_directory          = string
@@ -471,7 +486,25 @@ variable "volumes" {
       }))
     }))
   }))
-  description = "Task volume definitions as list of configuration objects"
+
+  description = "Task EFS volume definitions as list of configuration objects. You cannot define both Docker volumes and EFS volumes on the same task definition."
+  default     = []
+}
+
+variable "docker_volumes" {
+  type = list(object({
+    host_path = string
+    name      = string
+    docker_volume_configuration = list(object({
+      autoprovision = bool
+      driver        = string
+      driver_opts   = map(string)
+      labels        = map(string)
+      scope         = string
+    }))
+  }))
+
+  description = "Task docker volume definitions as list of configuration objects. You cannot define both Docker volumes and EFS volumes on the same task definition."
   default     = []
 }
 

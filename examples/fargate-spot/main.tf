@@ -43,11 +43,10 @@ module "task" {
   ]
 
   # create ephemeral volume due to read only root filesystem
-  volumes = [{
+  docker_volumes = [{
     name                        = "app_tmp"
-    host_path                   = ""
+    host_path                   = "/tmp"
     docker_volume_configuration = []
-    efs_volume_configuration    = []
   }]
 
   # mount "app_tmp" task volume to default container at "/tmp" path

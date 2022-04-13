@@ -101,7 +101,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=0.59.0"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=0.64.0"
 
   name      = var.name
   namespace = var.project
@@ -110,7 +110,8 @@ module "task" {
 
   container_definition_json          = local.container_definitions_json
   ecs_load_balancers                 = local.ecs_load_balancers
-  volumes                            = var.volumes
+  efs_volumes                        = var.efs_volumes
+  docker_volumes                     = var.docker_volumes
   launch_type                        = var.launch_type
   network_mode                       = var.network_mode
   task_cpu                           = var.task_cpu
@@ -127,10 +128,12 @@ module "task" {
   ordered_placement_strategy         = var.ordered_placement_strategy
   task_placement_constraints         = var.task_placement_constraints
   service_placement_constraints      = var.service_placement_constraints
-  security_groups                    = var.security_group_ids
+  security_group_ids                 = var.security_group_ids
+  alb_security_group                 = var.alb_security_group
   subnet_ids                         = var.subnet_ids
   assign_public_ip                   = var.assign_public_ip
   ignore_changes_task_definition     = var.ignore_changes_task_definition
+  ignore_changes_desired_count       = var.ignore_changes_desired_count
   deployment_controller_type         = var.deployment_controller_type
   deployment_maximum_percent         = var.deployment_maximum_percent
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
@@ -140,9 +143,9 @@ module "task" {
   exec_enabled                       = var.exec_enabled
   force_new_deployment               = var.force_new_deployment
   security_group_description         = var.security_group_description
-  security_group_rules               = var.security_group_rules
   circuit_breaker_deployment_enabled = var.circuit_breaker_deployment_enabled
   circuit_breaker_rollback_enabled   = var.circuit_breaker_rollback_enabled
+  runtime_platform                   = var.runtime_platform
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
