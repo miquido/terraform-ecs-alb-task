@@ -41,7 +41,7 @@ Available targets:
 | <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git | 1.1.10 |
 | <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | 0.12.2 |
 | <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label | 0.8.0 |
-| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.63.1 |
+| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.64.0 |
 
 ## Resources
 
@@ -130,6 +130,7 @@ Available targets:
 | <a name="input_force_new_deployment"></a> [force\_new\_deployment](#input\_force\_new\_deployment) | Enable to force a new task deployment of the service. | `bool` | `false` | no |
 | <a name="input_health_check_grace_period_seconds"></a> [health\_check\_grace\_period\_seconds](#input\_health\_check\_grace\_period\_seconds) | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | `string` | `0` | no |
 | <a name="input_healthcheck"></a> [healthcheck](#input\_healthcheck) | A map containing command (string), timeout, interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy), and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) | <pre>object({<br>    command     = list(string)<br>    retries     = number<br>    timeout     = number<br>    interval    = number<br>    startPeriod = number<br>  })</pre> | `null` | no |
+| <a name="input_ignore_changes_desired_count"></a> [ignore\_changes\_desired\_count](#input\_ignore\_changes\_desired\_count) | Whether to ignore changes for desired count in the ECS service | `bool` | `false` | no |
 | <a name="input_ignore_changes_task_definition"></a> [ignore\_changes\_task\_definition](#input\_ignore\_changes\_task\_definition) | Whether to ignore changes in container definition and task definition in the ECS service | `bool` | `true` | no |
 | <a name="input_launch_type"></a> [launch\_type](#input\_launch\_type) | The launch type on which to run your service. Valid values are `EC2` and `FARGATE` | `string` | `"FARGATE"` | no |
 | <a name="input_links"></a> [links](#input\_links) | List of container names this container can communicate with without port mappings | `list(string)` | `null` | no |
