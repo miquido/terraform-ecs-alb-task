@@ -35,7 +35,7 @@ Available targets:
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | 1.0.6 |
+| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | 1.0.7 |
 | <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git | 0.7.3 |
 | <a name="module_container"></a> [container](#module\_container) | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition | 0.58.1 |
 | <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git | 1.1.10 |
@@ -65,6 +65,7 @@ Available targets:
 | <a name="input_app_mesh_health_check_path"></a> [app\_mesh\_health\_check\_path](#input\_app\_mesh\_health\_check\_path) | service health check path for app mesh | `string` | `null` | no |
 | <a name="input_app_mesh_id"></a> [app\_mesh\_id](#input\_app\_mesh\_id) | app mesh id to create service entry | `string` | `null` | no |
 | <a name="input_app_mesh_route53_zone"></a> [app\_mesh\_route53\_zone](#input\_app\_mesh\_route53\_zone) | app\_mesh route zone to create service entry | <pre>object({<br>    id   = string<br>    name = string<br>  })</pre> | `null` | no |
+| <a name="input_app_protocol"></a> [app\_protocol](#input\_app\_protocol) | Protocol of the app. f.e. http or tcp | `string` | `"http"` | no |
 | <a name="input_assign_public_ip"></a> [assign\_public\_ip](#input\_assign\_public\_ip) | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | `bool` | `false` | no |
 | <a name="input_autoscaling_dimension"></a> [autoscaling\_dimension](#input\_autoscaling\_dimension) | Dimension to autoscale on (valid options: cpu, memory) | `string` | `"cpu"` | no |
 | <a name="input_autoscaling_enabled"></a> [autoscaling\_enabled](#input\_autoscaling\_enabled) | A boolean to enable/disable Autoscaling policy for ECS Service | `bool` | `false` | no |
@@ -214,7 +215,7 @@ Available targets:
 
 ## Copyright
 
-Copyright © 2017-2022 [Miquido](https://miquido.com)
+Copyright © 2017-2023 [Miquido](https://miquido.com)
 
 
 
