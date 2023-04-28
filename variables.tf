@@ -41,6 +41,12 @@ variable "container_port" {
   default     = 80
 }
 
+variable "app_protocol" {
+  type        = string
+  description = "Protocol of the app. f.e. http or tcp"
+  default     = "http"
+}
+
 variable "container_cpu" {
   type        = number
   description = "The number of cpu units to reserve for the container. This is optional for tasks using Fargate launch type and the total amount of container_cpu of all containers in a task will need to be lower than the task-level cpu value"
