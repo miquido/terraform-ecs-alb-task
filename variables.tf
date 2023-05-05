@@ -141,7 +141,19 @@ variable "ssm_secrets_enabled" {
 variable "ssm_secrets_resources" {
   type        = list(string)
   default     = ["*"]
-  description = "Limit access to the SSM Parameters when 'enable_secrets_from_ssm' is enabled. By default no resources are allowed to be read."
+  description = "Limit access to the SSM Parameters when 'enable_secrets_from_ssm' is enabled. By default all resources are allowed to be read."
+}
+
+variable "secret_manager_enabled" {
+  type        = bool
+  default     = false
+  description = "Adds IAM Policy for reading secrets from Secrets Manager (use 'secretsmanager_secrets_resources' to limit access to the Secret managers resources)"
+}
+
+variable "secretsmanager_secrets_resources" {
+  type        = list(string)
+  default     = ["*"]
+  description = "Limit access to the Secrets Manager when 'secret_manager_enabled' is enabled. By default all resources are allowed to be read."
 }
 
 variable "deployment_controller_type" {

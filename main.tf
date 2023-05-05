@@ -166,6 +166,24 @@ resource "aws_iam_role_policy" "ecs-exec-ssm-secrets" {
   role   = module.task.task_exec_role_name
 }
 
+data "aws_iam_policy_document" "ecs-exec-secret-manager" {
+  count = var.secret_manager_enabled ? 1 : 0
+
+  statement {
+    effect    = "Allow"
+    resources = var.secretsmanager_secrets_resources
+    actions   = ["secretsmanager:GetSecretValue"]
+  }
+}
+
+resource "aws_iam_role_policy" "ecs-exec-secret-manager" {
+  count = var.secret_manager_enabled ? 1 : 0
+
+  name   = "${module.task.ecs_exec_role_policy_name}-secret-manager"
+  policy = data.aws_iam_policy_document.ecs-exec-secret-manager[0].json
+  role   = module.task.task_exec_role_name
+}
+
 locals {
   cpu_utilization_high_alarm_actions    = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_up_policy_arn : ""
   cpu_utilization_low_alarm_actions     = var.autoscaling_enabled && var.autoscaling_dimension == "cpu" ? module.autoscaling.scale_down_policy_arn : ""
