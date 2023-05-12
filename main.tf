@@ -288,7 +288,7 @@ module "appmesh" {
   app_protocol             = var.app_protocol
   appmesh_domain           = local.appmesh_domain
   appmesh_name             = var.app_mesh_id
-  appmesh_service_name     = var.name
+  appmesh_service_name     = "${var.project}-${var.environment}-${var.name}"
   cloud_map_dns            = local.appmesh_service_cloud_map_dns
   cloud_map_hosted_zone_id = var.app_mesh_aws_service_discovery_private_dns_namespace.hosted_zone
   cloud_map_namespace_name = var.app_mesh_aws_service_discovery_private_dns_namespace.name
