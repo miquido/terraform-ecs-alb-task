@@ -19,7 +19,7 @@ locals {
   app_mesh_count                = var.app_mesh_enable ? 1 : 0
   appmesh_domain                = var.app_mesh_enable ? var.app_mesh_route53_zone.name : ""
   appmesh_cloud_map_domain      = var.app_mesh_enable ? var.app_mesh_aws_service_discovery_private_dns_namespace.name : ""
-  appmesh_service_dns           = "${var.name}.${local.appmesh_domain}"
+  appmesh_service_dns           = "${var.project}-${var.environment}-${var.name}.${local.appmesh_domain}"
   appmesh_service_cloud_map_dns = replace(local.appmesh_service_dns, local.appmesh_domain, local.appmesh_cloud_map_domain)
 
   service_registries   = length(module.ecs-alb-task-envoy-proxy) == 1 ? module.ecs-alb-task-envoy-proxy[0].service_registries : []
