@@ -889,3 +889,9 @@ variable "circuit_breaker_rollback_enabled" {
   description = "Whether to enable Amazon ECS to roll back the service if a service deployment fails"
   default     = false
 }
+
+variable "envoy_health_check_start_period" {
+  type        = number
+  description = "when envoy container should start performing health checks"
+  default     = null
+}
