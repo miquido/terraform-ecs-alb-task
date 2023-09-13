@@ -270,7 +270,7 @@ module "autoscaling" {
 
 module "ecs-alb-task-envoy-proxy" {
   count                             = local.app_mesh_count
-  source                            = "git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git?ref=1.1.11"
+  source                            = "git::https://github.com/miquido/terraform-ecs-envoy.git?ref=1.1.11"
   appmesh-resource-arn              = module.appmesh[count.index].appmesh-resource-arn
   awslogs-group                     = join("", aws_cloudwatch_log_group.app.*.name)
   awslogs-region                    = var.logs_region
@@ -283,7 +283,7 @@ module "ecs-alb-task-envoy-proxy" {
 
 module "appmesh" {
   count                    = local.app_mesh_count
-  source                   = "git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git?ref=1.0.8"
+  source                   = "git::https://github.com/miquido/terraform-app-mesh-service.git?ref=1.0.8"
   app_health_check_path    = var.app_mesh_health_check_path
   app_port                 = var.container_port
   app_protocol             = var.app_protocol
