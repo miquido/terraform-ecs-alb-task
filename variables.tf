@@ -895,3 +895,9 @@ variable "envoy_health_check_start_period" {
   description = "when envoy container should start performing health checks"
   default     = null
 }
+
+variable "redeploy_on_apply" {
+  type        = bool
+  description = "Updates the service to the latest task definition on each apply"
+  default     = false
+}

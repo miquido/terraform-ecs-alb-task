@@ -101,7 +101,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=0.66.4"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=0.71.0"
 
   name      = var.name
   namespace = var.project
@@ -146,6 +146,7 @@ module "task" {
   circuit_breaker_deployment_enabled = var.circuit_breaker_deployment_enabled
   circuit_breaker_rollback_enabled   = var.circuit_breaker_rollback_enabled
   runtime_platform                   = var.runtime_platform
+  redeploy_on_apply                  = var.redeploy_on_apply
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
@@ -270,7 +271,7 @@ module "autoscaling" {
 
 module "ecs-alb-task-envoy-proxy" {
   count                             = local.app_mesh_count
-  source                            = "git::https://github.com/miquido/terraform-ecs-envoy.git?ref=1.1.11"
+  source                            = "/Users/marek/Documents/Dev/terraform-ecs-envoy"
   appmesh-resource-arn              = module.appmesh[count.index].appmesh-resource-arn
   awslogs-group                     = join("", aws_cloudwatch_log_group.app.*.name)
   awslogs-region                    = var.logs_region
@@ -282,8 +283,9 @@ module "ecs-alb-task-envoy-proxy" {
 }
 
 module "appmesh" {
-  count                    = local.app_mesh_count
-  source                   = "git::https://github.com/miquido/terraform-app-mesh-service.git?ref=1.0.8"
+  count  = local.app_mesh_count
+  source = "/Users/marek/Documents/Dev/terraform-app-mesh-service"
+  #  source                   = "git::https://github.com/miquido/terraform-app-mesh-service.git?ref=1.0.8"
   app_health_check_path    = var.app_mesh_health_check_path
   app_port                 = var.container_port
   app_protocol             = var.app_protocol
