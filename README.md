@@ -41,7 +41,7 @@ Available targets:
 | <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::https://github.com/miquido/terraform-ecs-envoy | 1.1.12 |
 | <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | 0.12.3 |
 | <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label | 0.8.0 |
-| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.71.0 |
+| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.72.0 |
 
 ## Resources
 
@@ -221,7 +221,7 @@ Available targets:
 
 ## Copyright
 
-Copyright © 2017-2023 [Miquido](https://miquido.com)
+Copyright © 2017-2024 [Miquido](https://miquido.com)
 
 
 
