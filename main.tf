@@ -193,7 +193,7 @@ locals {
 }
 
 module "ecs-service-alarms" {
-  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=0.12.3"
+  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=0.13.0"
   enabled           = var.ecs_alarms_enabled
   name              = var.name
   namespace         = var.project
