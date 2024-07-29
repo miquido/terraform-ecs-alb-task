@@ -273,7 +273,7 @@ module "ecs-alb-task-envoy-proxy" {
   count                             = local.app_mesh_count
   source                            = "git::https://github.com/miquido/terraform-ecs-envoy?ref=1.1.12"
   appmesh-resource-arn              = module.appmesh[count.index].appmesh-resource-arn
-  awslogs-group                     = join("", aws_cloudwatch_log_group.app.*.name)
+  awslogs-group                     = local.use_default_log_config ? join("", aws_cloudwatch_log_group.app.*.name) : var.log_configuration.options.awslogs-group
   awslogs-region                    = var.logs_region
   app-ports                         = var.container_port
   container_name                    = "${var.project}-${var.environment}-${var.name}"
