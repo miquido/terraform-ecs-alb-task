@@ -23,7 +23,7 @@
 
 -->
 
-Provide ECS Service and Task configuration with ALB attachement
+Provide ECS Service and Task configuration with ALB attachment
 
 
 
