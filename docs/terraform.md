@@ -4,32 +4,34 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.7 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.7 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.7 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 4.7 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::ssh://git@gitlab.com/miquido/terraform/terraform-app-mesh-service.git | 1.0.6 |
-| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git | 0.7.3 |
+| <a name="module_appmesh"></a> [appmesh](#module\_appmesh) | git::https://github.com/miquido/terraform-app-mesh-service.git | 1.0.9 |
+| <a name="module_autoscaling"></a> [autoscaling](#module\_autoscaling) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git | 0.7.5 |
 | <a name="module_container"></a> [container](#module\_container) | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition | 0.58.1 |
-| <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::ssh://git@gitlab.com/miquido/terraform/terraform-ecs-envoy.git | 1.1.10 |
-| <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | 0.12.2 |
+| <a name="module_ecs-alb-task-envoy-proxy"></a> [ecs-alb-task-envoy-proxy](#module\_ecs-alb-task-envoy-proxy) | git::https://github.com/miquido/terraform-ecs-envoy | 1.1.12 |
+| <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | 0.12.3 |
 | <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label | 0.8.0 |
-| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.63.1 |
+| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task | 0.71.0 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [aws_cloudwatch_log_group.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
+| [aws_iam_role_policy.ecs-exec-secret-manager](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.ecs-exec-ssm-secrets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_policy_document.ecs-exec-secret-manager](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.ecs-exec-ssm-secrets](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
@@ -46,6 +48,7 @@
 | <a name="input_app_mesh_health_check_path"></a> [app\_mesh\_health\_check\_path](#input\_app\_mesh\_health\_check\_path) | service health check path for app mesh | `string` | `null` | no |
 | <a name="input_app_mesh_id"></a> [app\_mesh\_id](#input\_app\_mesh\_id) | app mesh id to create service entry | `string` | `null` | no |
 | <a name="input_app_mesh_route53_zone"></a> [app\_mesh\_route53\_zone](#input\_app\_mesh\_route53\_zone) | app\_mesh route zone to create service entry | <pre>object({<br>    id   = string<br>    name = string<br>  })</pre> | `null` | no |
+| <a name="input_app_protocol"></a> [app\_protocol](#input\_app\_protocol) | Protocol of the app. f.e. http or tcp | `string` | `"http"` | no |
 | <a name="input_assign_public_ip"></a> [assign\_public\_ip](#input\_assign\_public\_ip) | Assign a public IP address to the ENI (Fargate launch type only). Valid values are true or false. Default false. | `bool` | `false` | no |
 | <a name="input_autoscaling_dimension"></a> [autoscaling\_dimension](#input\_autoscaling\_dimension) | Dimension to autoscale on (valid options: cpu, memory) | `string` | `"cpu"` | no |
 | <a name="input_autoscaling_enabled"></a> [autoscaling\_enabled](#input\_autoscaling\_enabled) | A boolean to enable/disable Autoscaling policy for ECS Service | `bool` | `false` | no |
@@ -103,6 +106,7 @@
 | <a name="input_enable_ecs_managed_tags"></a> [enable\_ecs\_managed\_tags](#input\_enable\_ecs\_managed\_tags) | Specifies whether to enable Amazon ECS managed tags for the tasks within the service | `bool` | `true` | no |
 | <a name="input_entrypoint"></a> [entrypoint](#input\_entrypoint) | The entry point that is passed to the container | `list(string)` | `null` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name | `string` | `""` | no |
+| <a name="input_envoy_health_check_start_period"></a> [envoy\_health\_check\_start\_period](#input\_envoy\_health\_check\_start\_period) | when envoy container should start performing health checks | `number` | `null` | no |
 | <a name="input_envs"></a> [envs](#input\_envs) | The environment variables to pass to the container. This is a list of maps | <pre>list(object({<br>    name  = string<br>    value = string<br>  }))</pre> | `[]` | no |
 | <a name="input_essential"></a> [essential](#input\_essential) | Determines whether all other containers in a task are stopped, if this container fails or stops for any reason. Due to how Terraform type casts booleans in json it is required to double quote this value | `bool` | `true` | no |
 | <a name="input_exec_enabled"></a> [exec\_enabled](#input\_exec\_enabled) | Specifies whether to enable Amazon ECS Exec for the tasks within the service | `bool` | `false` | no |
@@ -111,6 +115,7 @@
 | <a name="input_force_new_deployment"></a> [force\_new\_deployment](#input\_force\_new\_deployment) | Enable to force a new task deployment of the service. | `bool` | `false` | no |
 | <a name="input_health_check_grace_period_seconds"></a> [health\_check\_grace\_period\_seconds](#input\_health\_check\_grace\_period\_seconds) | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | `string` | `0` | no |
 | <a name="input_healthcheck"></a> [healthcheck](#input\_healthcheck) | A map containing command (string), timeout, interval (duration in seconds), retries (1-10, number of times to retry before marking container unhealthy), and startPeriod (0-300, optional grace period to wait, in seconds, before failed healthchecks count toward retries) | <pre>object({<br>    command     = list(string)<br>    retries     = number<br>    timeout     = number<br>    interval    = number<br>    startPeriod = number<br>  })</pre> | `null` | no |
+| <a name="input_ignore_changes_desired_count"></a> [ignore\_changes\_desired\_count](#input\_ignore\_changes\_desired\_count) | Whether to ignore changes for desired count in the ECS service | `bool` | `false` | no |
 | <a name="input_ignore_changes_task_definition"></a> [ignore\_changes\_task\_definition](#input\_ignore\_changes\_task\_definition) | Whether to ignore changes in container definition and task definition in the ECS service | `bool` | `true` | no |
 | <a name="input_launch_type"></a> [launch\_type](#input\_launch\_type) | The launch type on which to run your service. Valid values are `EC2` and `FARGATE` | `string` | `"FARGATE"` | no |
 | <a name="input_links"></a> [links](#input\_links) | List of container names this container can communicate with without port mappings | `list(string)` | `null` | no |
@@ -128,10 +133,13 @@
 | <a name="input_propagate_tags"></a> [propagate\_tags](#input\_propagate\_tags) | Specifies whether to propagate the tags from the task definition or the service to the tasks. The valid values are SERVICE and TASK\_DEFINITION. | `string` | `"SERVICE"` | no |
 | <a name="input_proxy_configuration"></a> [proxy\_configuration](#input\_proxy\_configuration) | The proxy configuration details for the App Mesh proxy. See `proxy_configuration` docs https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#proxy-configuration-arguments | <pre>object({<br>    type           = string<br>    container_name = string<br>    properties     = map(string)<br>  })</pre> | `null` | no |
 | <a name="input_readonly_root_filesystem"></a> [readonly\_root\_filesystem](#input\_readonly\_root\_filesystem) | Determines whether a container is given read-only access to its root filesystem. Due to how Terraform type casts booleans in json it is required to double quote this value | `bool` | `false` | no |
+| <a name="input_redeploy_on_apply"></a> [redeploy\_on\_apply](#input\_redeploy\_on\_apply) | Updates the service to the latest task definition on each apply | `bool` | `false` | no |
 | <a name="input_repository_credentials"></a> [repository\_credentials](#input\_repository\_credentials) | Container repository credentials; required when using a private repo.  This map currently supports a single key; "credentialsParameter", which should be the ARN of a Secrets Manager's secret holding the credentials | `map(string)` | `null` | no |
 | <a name="input_runtime_platform"></a> [runtime\_platform](#input\_runtime\_platform) | Zero or one runtime platform configurations that containers in your task may use.<br>Map of strings with optional keys `operating_system_family` and `cpu_architecture`.<br>See `runtime_platform` docs https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition#runtime_platform | `list(map(string))` | `[]` | no |
 | <a name="input_scheduling_strategy"></a> [scheduling\_strategy](#input\_scheduling\_strategy) | The scheduling strategy to use for the service. The valid values are REPLICA and DAEMON. Note that Fargate tasks do not support the DAEMON scheduling strategy. | `string` | `"REPLICA"` | no |
+| <a name="input_secret_manager_enabled"></a> [secret\_manager\_enabled](#input\_secret\_manager\_enabled) | Adds IAM Policy for reading secrets from Secrets Manager (use 'secretsmanager\_secrets\_resources' to limit access to the Secret managers resources) | `bool` | `false` | no |
 | <a name="input_secrets"></a> [secrets](#input\_secrets) | The secrets to pass to the container. This is a list of maps | <pre>list(object({<br>    name      = string<br>    valueFrom = string<br>  }))</pre> | `[]` | no |
+| <a name="input_secretsmanager_secrets_resources"></a> [secretsmanager\_secrets\_resources](#input\_secretsmanager\_secrets\_resources) | Limit access to the Secrets Manager when 'secret\_manager\_enabled' is enabled. By default all resources are allowed to be read. | `list(string)` | <pre>[<br>  "*"<br>]</pre> | no |
 | <a name="input_security_group_description"></a> [security\_group\_description](#input\_security\_group\_description) | The Security Group description. | `string` | `"ECS service Security Group"` | no |
 | <a name="input_security_group_ids"></a> [security\_group\_ids](#input\_security\_group\_ids) | Security group IDs to allow in Service `network_configuration` | `list(string)` | n/a | yes |
 | <a name="input_security_group_rules"></a> [security\_group\_rules](#input\_security\_group\_rules) | A list of maps of Security Group rules.<br>The values of map is fully complated with `aws_security_group_rule` resource.<br>To get more info see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule . | `list(any)` | <pre>[<br>  {<br>    "cidr_blocks": [<br>      "0.0.0.0/0"<br>    ],<br>    "description": "Allow all outbound traffic",<br>    "from_port": 0,<br>    "protocol": -1,<br>    "to_port": 0,<br>    "type": "egress"<br>  },<br>  {<br>    "cidr_blocks": [<br>      "0.0.0.0/0"<br>    ],<br>    "description": "Enables ping command from anywhere, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-ping",<br>    "from_port": 8,<br>    "protocol": "icmp",<br>    "to_port": 0,<br>    "type": "ingress"<br>  }<br>]</pre> | no |
@@ -139,7 +147,7 @@
 | <a name="input_service_placement_constraints"></a> [service\_placement\_constraints](#input\_service\_placement\_constraints) | The rules that are taken into consideration during task placement. Maximum number of placement\_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#placement_constraints-1 | <pre>list(object({<br>    type       = string<br>    expression = string<br>  }))</pre> | `[]` | no |
 | <a name="input_service_registries"></a> [service\_registries](#input\_service\_registries) | The service discovery registries for the service. The maximum number of service\_registries blocks is 1. The currently supported service registry is Amazon Route 53 Auto Naming Service - `aws_service_discovery_service`; see `service_registries` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#service_registries-1 | <pre>list(object({<br>    registry_arn   = string<br>    port           = number<br>    container_name = string<br>    container_port = number<br>  }))</pre> | `[]` | no |
 | <a name="input_ssm_secrets_enabled"></a> [ssm\_secrets\_enabled](#input\_ssm\_secrets\_enabled) | Adds IAM Policy for reading secrets from Systems Manager Paramameter Store (use 'ssm\_secrets\_resources' to limit access to the SSM resources) | `bool` | `false` | no |
-| <a name="input_ssm_secrets_resources"></a> [ssm\_secrets\_resources](#input\_ssm\_secrets\_resources) | Limit access to the SSM Parameters when 'enable\_secrets\_from\_ssm' is enabled. By default no resources are allowed to be read. | `list(string)` | <pre>[<br>  "*"<br>]</pre> | no |
+| <a name="input_ssm_secrets_resources"></a> [ssm\_secrets\_resources](#input\_ssm\_secrets\_resources) | Limit access to the SSM Parameters when 'enable\_secrets\_from\_ssm' is enabled. By default all resources are allowed to be read. | `list(string)` | <pre>[<br>  "*"<br>]</pre> | no |
 | <a name="input_start_timeout"></a> [start\_timeout](#input\_start\_timeout) | Time duration (in seconds) to wait before giving up on resolving dependencies for a container | `number` | `30` | no |
 | <a name="input_stop_timeout"></a> [stop\_timeout](#input\_stop\_timeout) | Time duration (in seconds) to wait before the container is forcefully killed if it doesn't exit normally on its own | `number` | `30` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | Subnet IDs | `list(string)` | n/a | yes |
@@ -165,6 +173,7 @@
 | <a name="output_ecs_exec_role_policy_name"></a> [ecs\_exec\_role\_policy\_name](#output\_ecs\_exec\_role\_policy\_name) | ECS service role name |
 | <a name="output_log_group_arn"></a> [log\_group\_arn](#output\_log\_group\_arn) | The Amazon Resource Name (ARN) specifying the log group |
 | <a name="output_log_group_name"></a> [log\_group\_name](#output\_log\_group\_name) | The name of the log group |
+| <a name="output_service_arn"></a> [service\_arn](#output\_service\_arn) | n/a |
 | <a name="output_service_name"></a> [service\_name](#output\_service\_name) | ECS Service name |
 | <a name="output_service_role_arn"></a> [service\_role\_arn](#output\_service\_role\_arn) | ECS Service role ARN |
 | <a name="output_task_definition_family"></a> [task\_definition\_family](#output\_task\_definition\_family) | ECS task definition family |
