@@ -71,3 +71,13 @@ output "app_mesh_service_dns" {
 output "service_arn" {
   value = module.task.service_arn
 }
+
+output "task_definition_arn" {
+  description = "ECS task definition ARN"
+  value       = module.task.task_definition_arn
+}
+
+output "task_definition_arn_without_revision" {
+  description = "ECS task definition ARN without revision"
+  value       = module.task.task_definition_arn_without_revision
+}
