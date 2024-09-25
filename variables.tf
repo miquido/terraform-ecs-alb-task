@@ -592,53 +592,6 @@ variable "force_new_deployment" {
   default     = false
 }
 
-#############
-# APP MESH
-#############
-
-variable "app_mesh_egress_ignored_ports" {
-  type        = string
-  default     = ""
-  description = "App mesh egress ignored ports"
-}
-
-variable "app_mesh_enable" {
-  type        = bool
-  default     = false
-  description = "Should app mesh resources be created for this service"
-}
-
-variable "app_mesh_aws_service_discovery_private_dns_namespace" {
-  type = object({
-    name        = string
-    id          = string
-    hosted_zone = string
-  })
-  default     = null
-  description = "app mesh private DNS namespace"
-}
-
-variable "app_mesh_id" {
-  type        = string
-  default     = null
-  description = "app mesh id to create service entry"
-}
-
-variable "app_mesh_route53_zone" {
-  type = object({
-    id   = string
-    name = string
-  })
-  default     = null
-  description = "app_mesh route zone to create service entry"
-}
-
-variable "app_mesh_health_check_path" {
-  type        = string
-  default     = null
-  description = "service health check path for app mesh"
-}
-
 ##########
 # ALARMS
 ##########
@@ -943,6 +896,6 @@ variable "service_connect_configurations" {
 }
 
 variable "container_port_name" {
-  type = string
+  type    = string
   default = "default"
 }
