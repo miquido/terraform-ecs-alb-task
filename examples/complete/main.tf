@@ -26,4 +26,29 @@ module "task" {
   subnet_ids           = []
   security_group_ids   = []
   security_group_rules = [aws_security_group_rule.example]
+    service_connect_configurations     = [
+    {
+      enabled   = true
+      namespace = aws_service_discovery_private_dns_namespace.example.name
+      service   = [
+        {
+          discovery_name = "example-discovery"
+          port_name      = "default"
+          client_alias   = [
+            {
+              dns_name = "example-dns"
+              port     = 80
+            }
+          ]
+        }
+      ]
+
+    }
+  ]
+}
+
+resource "aws_service_discovery_private_dns_namespace" "example" {
+  name        = "example.local"
+  description = "example"
+  vpc         = ""
 }
