@@ -63,11 +63,6 @@ output "log_group_arn" {
   value       = join("", aws_cloudwatch_log_group.app.*.arn)
 }
 
-output "app_mesh_service_dns" {
-  description = "Service DNS available inside app mesh"
-  value       = local.appmesh_service_dns
-}
-
 output "service_arn" {
   value = module.task.service_arn
 }
