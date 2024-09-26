@@ -16,15 +16,6 @@ locals {
       valueFrom = lookup(key, "valueFrom")
     }
   ] : var.secrets
-  app_mesh_count                = var.app_mesh_enable ? 1 : 0
-  appmesh_domain                = var.app_mesh_enable ? var.app_mesh_route53_zone.name : ""
-  appmesh_cloud_map_domain      = var.app_mesh_enable ? var.app_mesh_aws_service_discovery_private_dns_namespace.name : ""
-  appmesh_service_dns           = "${var.project}-${var.environment}-${var.name}.${local.appmesh_domain}"
-  appmesh_service_cloud_map_dns = replace(local.appmesh_service_dns, local.appmesh_domain, local.appmesh_cloud_map_domain)
-
-  service_registries   = length(module.ecs-alb-task-envoy-proxy) == 1 ? module.ecs-alb-task-envoy-proxy[0].service_registries : []
-  container_depends_on = length(module.ecs-alb-task-envoy-proxy) == 1 ? [module.ecs-alb-task-envoy-proxy[0].container_dependant] : []
-  proxy_configuration  = length(module.ecs-alb-task-envoy-proxy) == 1 ? module.ecs-alb-task-envoy-proxy[0].proxy_configuration : var.proxy_configuration
 }
 
 resource "aws_cloudwatch_log_group" "app" {
@@ -57,7 +48,7 @@ module "container" {
   volumes_from                 = var.volumes_from
   links                        = var.links
   user                         = var.user
-  container_depends_on         = concat(var.container_depends_on, local.container_depends_on)
+  container_depends_on         = var.container_depends_on
   docker_labels                = var.docker_labels
   start_timeout                = var.start_timeout
   stop_timeout                 = var.stop_timeout
@@ -71,6 +62,7 @@ module "container" {
       containerPort = var.container_port
       hostPort      = var.container_port
       protocol      = "tcp"
+      name          = var.container_port_name
     },
   ], var.additional_port_mappings)
 
@@ -86,8 +78,7 @@ module "container" {
 }
 
 locals {
-  additional_containers      = concat(var.additional_containers, [join("", module.ecs-alb-task-envoy-proxy.*.json_map_encoded)])
-  container_definitions      = compact(concat([module.container.json_map_encoded], local.additional_containers))
+  container_definitions      = compact(concat([module.container.json_map_encoded], var.additional_containers))
   container_definitions_json = "[${join(",", local.container_definitions)}]"
 
   ecs_default_alb = var.ecs_default_alb_enabled ? [{
@@ -121,8 +112,8 @@ module "task" {
   ecs_cluster_arn                    = var.ecs_cluster_arn
   propagate_tags                     = var.propagate_tags
   vpc_id                             = var.vpc_id
-  proxy_configuration                = local.proxy_configuration
-  service_registries                 = concat(var.service_registries, local.service_registries)
+  proxy_configuration                = var.proxy_configuration
+  service_registries                 = var.service_registries
   platform_version                   = var.platform_version
   scheduling_strategy                = var.scheduling_strategy
   ordered_placement_strategy         = var.ordered_placement_strategy
@@ -147,6 +138,7 @@ module "task" {
   circuit_breaker_rollback_enabled   = var.circuit_breaker_rollback_enabled
   runtime_platform                   = var.runtime_platform
   redeploy_on_apply                  = var.redeploy_on_apply
+  service_connect_configurations     = var.service_connect_configurations
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
@@ -265,37 +257,4 @@ module "autoscaling" {
   scale_down_cooldown   = var.autoscaling_scale_down_cooldown
   scale_up_adjustment   = var.autoscaling_scale_up_adjustment
   scale_up_cooldown     = var.autoscaling_scale_up_cooldown
-}
-
-// APP MESH
-
-module "ecs-alb-task-envoy-proxy" {
-  count                             = local.app_mesh_count
-  source                            = "git::https://github.com/miquido/terraform-ecs-envoy?ref=1.1.13"
-  appmesh-resource-arn              = module.appmesh[count.index].appmesh-resource-arn
-  awslogs-group                     = local.use_default_log_config ? join("", aws_cloudwatch_log_group.app.*.name) : var.log_configuration.options.awslogs-group
-  awslogs-region                    = var.logs_region
-  app-ports                         = var.container_port
-  container_name                    = "${var.project}-${var.environment}-${var.name}"
-  aws_service_discovery_service_arn = module.appmesh[count.index].aws_service_discovery_service_arn
-  egress-ignored-ports              = var.app_mesh_egress_ignored_ports
-  health_check_start_period         = var.envoy_health_check_start_period
-}
-
-module "appmesh" {
-  count                    = local.app_mesh_count
-  source                   = "git::https://github.com/miquido/terraform-app-mesh-service.git?ref=1.0.9"
-  app_health_check_path    = var.app_mesh_health_check_path
-  app_port                 = var.container_port
-  app_protocol             = var.app_protocol
-  appmesh_domain           = local.appmesh_domain
-  appmesh_name             = var.app_mesh_id
-  appmesh_service_name     = "${var.project}-${var.environment}-${var.name}"
-  cloud_map_dns            = local.appmesh_service_cloud_map_dns
-  cloud_map_hosted_zone_id = var.app_mesh_aws_service_discovery_private_dns_namespace.hosted_zone
-  cloud_map_namespace_name = var.app_mesh_aws_service_discovery_private_dns_namespace.name
-  map_id                   = var.app_mesh_aws_service_discovery_private_dns_namespace.id
-  tags                     = var.tags
-  task_role_name           = module.task.task_role_name
-  zone_id                  = var.app_mesh_route53_zone.id
 }
