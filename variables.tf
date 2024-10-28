@@ -781,9 +781,15 @@ variable "autoscaling_scale_down_cooldown" {
 }
 
 variable "task_role_arn" {
-  type        = string
-  description = "The ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services"
-  default     = ""
+  type        = any
+  description = <<-EOT
+    A `list(string)` of zero or one ARNs of IAM roles that allows
+    your Amazon ECS container task to make calls to other AWS services.
+    If the list is empty, a role will be created for you.
+    DEPRECATED: you can also pass a `string` with the ARN, but that
+    string must be known a "plan" time.
+    EOT
+  default     = []
 }
 
 variable "exec_enabled" {
