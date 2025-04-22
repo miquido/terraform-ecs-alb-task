@@ -44,8 +44,8 @@ bump-tag:
     - VERSION=$(git tag --sort=committerdate | { grep "[0-9]*.[0-9]*.[0-9]*$" || true; }| tail -1)
     - git remote rm $CI_PIPELINE_ID &> /dev/null || true;
     - |
+      SERVER_URL_NO_SCHEMA=$(echo $CI_SERVER_URL | sed 's|^[^:]*://||') \
       git remote add $CI_PIPELINE_ID \
-      SERVER_URL_NO_SCHEMA=$(echo $CI_SERVER_URL | sed 's|^[^:]*://||')
       https://token:$GITLAB_TOKEN@$SERVER_URL_NO_SCHEMA/$CI_PROJECT_PATH.git
     - |
       if [[ "$VERSION" == "" ]]; then
