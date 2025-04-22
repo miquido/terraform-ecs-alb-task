@@ -45,7 +45,8 @@ bump-tag:
     - git remote rm $CI_PIPELINE_ID &> /dev/null || true;
     - |
       git remote add $CI_PIPELINE_ID \
-      https://token:$GITLAB_TOKEN@$CI_SERVER_URL/$CI_PROJECT_PATH.git
+      SERVER_URL_NO_SCHEMA=$(echo $CI_SERVER_URL | sed 's|^[^:]*://||')
+      https://token:$GITLAB_TOKEN@SERVER_URL_NO_SCHEMA/$CI_PROJECT_PATH.git
     - |
       if [[ "$VERSION" == "" ]]; then
         echo "VERSION is unset"
