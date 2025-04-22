@@ -70,7 +70,7 @@ module "container" {
   log_configuration = local.use_default_log_config ? {
     logDriver     = "awslogs"
     secretOptions = local.default_log_configuration_secrets
-    options       = {
+    options = {
       awslogs-region        = var.logs_region
       awslogs-group         = join("", aws_cloudwatch_log_group.app.*.name)
       awslogs-stream-prefix = var.name
@@ -201,7 +201,7 @@ module "ecs-service-alarms" {
   cpu_utilization_high_threshold          = var.ecs_alarms_cpu_utilization_high_threshold
   cpu_utilization_high_evaluation_periods = var.ecs_alarms_cpu_utilization_high_evaluation_periods
   cpu_utilization_high_period             = var.ecs_alarms_cpu_utilization_high_period
-  cpu_utilization_high_alarm_actions      = compact(
+  cpu_utilization_high_alarm_actions = compact(
     concat(
       var.ecs_alarms_cpu_utilization_high_alarm_actions,
       [local.cpu_utilization_high_alarm_actions],
@@ -212,7 +212,7 @@ module "ecs-service-alarms" {
   cpu_utilization_low_threshold          = var.ecs_alarms_cpu_utilization_low_threshold
   cpu_utilization_low_evaluation_periods = var.ecs_alarms_cpu_utilization_low_evaluation_periods
   cpu_utilization_low_period             = var.ecs_alarms_cpu_utilization_low_period
-  cpu_utilization_low_alarm_actions      = compact(
+  cpu_utilization_low_alarm_actions = compact(
     concat(
       var.ecs_alarms_cpu_utilization_low_alarm_actions,
       [local.cpu_utilization_low_alarm_actions],
@@ -223,7 +223,7 @@ module "ecs-service-alarms" {
   memory_utilization_high_threshold          = var.ecs_alarms_memory_utilization_high_threshold
   memory_utilization_high_evaluation_periods = var.ecs_alarms_memory_utilization_high_evaluation_periods
   memory_utilization_high_period             = var.ecs_alarms_memory_utilization_high_period
-  memory_utilization_high_alarm_actions      = compact(
+  memory_utilization_high_alarm_actions = compact(
     concat(
       var.ecs_alarms_memory_utilization_high_alarm_actions,
       [local.memory_utilization_high_alarm_actions],
@@ -234,7 +234,7 @@ module "ecs-service-alarms" {
   memory_utilization_low_threshold          = var.ecs_alarms_memory_utilization_low_threshold
   memory_utilization_low_evaluation_periods = var.ecs_alarms_memory_utilization_low_evaluation_periods
   memory_utilization_low_period             = var.ecs_alarms_memory_utilization_low_period
-  memory_utilization_low_alarm_actions      = compact(
+  memory_utilization_low_alarm_actions = compact(
     concat(
       var.ecs_alarms_memory_utilization_low_alarm_actions,
       [local.memory_utilization_low_alarm_actions],
