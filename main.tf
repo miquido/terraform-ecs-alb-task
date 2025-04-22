@@ -56,6 +56,7 @@ module "container" {
   system_controls              = var.system_controls
   linux_parameters             = var.linux_parameters
   extra_hosts                  = var.extra_hosts
+  container_definition         = var.container_definition
 
   port_mappings = concat([
     {
@@ -141,7 +142,6 @@ module "task" {
   runtime_platform                   = var.runtime_platform
   redeploy_on_apply                  = var.redeploy_on_apply
   service_connect_configurations     = var.service_connect_configurations
-  container_definition               = var.container_definition
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
