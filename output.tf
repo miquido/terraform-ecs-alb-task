@@ -76,3 +76,7 @@ output "task_definition_arn_without_revision" {
   description = "ECS task definition ARN without revision"
   value       = module.task.task_definition_arn_without_revision
 }
+
+output "service_security_group_id" {
+  value = module.task.service_security_group_id
+}
