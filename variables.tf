@@ -1033,9 +1033,9 @@ variable "container_definition" {
 
 variable "basic_auth" {
   type = object({
-    user               = string
-    password           = string
-    ignore_auth_paths  = optional(list(string), [])
+    user              = string
+    password          = string
+    ignore_auth_paths = optional(list(string), [])
   })
   default = null
 }

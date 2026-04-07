@@ -46,13 +46,6 @@ module "traefik" {
   container_name  = "traefik"
   essential       = true
 
-  # container_depends_on = [
-  #   {
-  #     containerName = module.label.id
-  #     condition     = var.healthcheck != null ? "HEALTHY" : "START"
-  #   }
-  # ]
-
   secrets = [
     {
       name      = "TRAEFIK_BASIC_AUTH_USERS"
