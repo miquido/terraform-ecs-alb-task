@@ -1030,3 +1030,12 @@ variable "container_definition" {
   description = "Container definition overrides which allows for extra keys or overriding existing keys."
   default     = {}
 }
+
+variable "basic_auth" {
+  type = object({
+    user               = string
+    password           = string
+    ignore_auth_paths  = optional(list(string), [])
+  })
+  default = null
+}

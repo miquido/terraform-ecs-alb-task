@@ -58,14 +58,17 @@ module "container" {
   extra_hosts                  = var.extra_hosts
   container_definition         = var.container_definition
 
-  port_mappings = concat([
-    {
-      containerPort = var.container_port
-      hostPort      = var.container_port
-      protocol      = "tcp"
-      name          = var.container_port_name
-    },
-  ], var.additional_port_mappings)
+  port_mappings = concat(
+    var.basic_auth == null ? [
+      {
+        containerPort = var.container_port
+        hostPort      = var.container_port
+        protocol      = "tcp"
+        name          = var.container_port_name
+      }
+    ] : [],
+    var.additional_port_mappings
+  )
 
   log_configuration = local.use_default_log_config ? {
     logDriver     = "awslogs"
@@ -79,15 +82,15 @@ module "container" {
 }
 
 locals {
-  container_definitions      = compact(concat([module.container.json_map_encoded], var.additional_containers))
+  container_definitions      = compact(concat([module.container.json_map_encoded], var.additional_containers, var.basic_auth != null ? [module.traefik[0].json_map_encoded] : []))
   container_definitions_json = "[${join(",", local.container_definitions)}]"
 
   ecs_default_alb = var.ecs_default_alb_enabled ? [
     {
       elb_name         = null
       target_group_arn = var.alb_target_group_arn
-      container_name   = module.label.id
-      container_port   = var.container_port
+      container_name   = var.basic_auth != null ? "traefik" : module.label.id
+      container_port   = var.basic_auth != null ? 80 : var.container_port
     }
   ] : []
 
