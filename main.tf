@@ -59,7 +59,7 @@ module "container" {
   container_definition         = var.container_definition
 
   port_mappings = concat(
-  [
+    [
       {
         containerPort = var.container_port
         hostPort      = var.container_port
