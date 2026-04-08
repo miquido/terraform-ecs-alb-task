@@ -908,7 +908,6 @@ variable "container_port_name" {
   default = "default"
 }
 
-
 # https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html
 variable "container_definition" {
   type = object({

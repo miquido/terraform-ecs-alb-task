@@ -59,14 +59,14 @@ module "container" {
   container_definition         = var.container_definition
 
   port_mappings = concat(
-    var.basic_auth == null ? [
+  [
       {
         containerPort = var.container_port
         hostPort      = var.container_port
         protocol      = "tcp"
         name          = var.container_port_name
       }
-    ] : [],
+    ],
     var.additional_port_mappings
   )
 

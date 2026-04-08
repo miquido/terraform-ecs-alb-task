@@ -59,6 +59,14 @@ module "traefik" {
       value = ":80"
     },
     {
+      name  = "TRAEFIK_ENTRYPOINTS_TRAEFIK_ADDRESS"
+      value = ":8080"
+    },
+    {
+      name  = "TRAEFIK_PING"
+      value = "true"
+    },
+    {
       name  = "TRAEFIK_PROVIDERS_FILE_FILENAME"
       value = "/tmp/dynamic.yml"
     }
@@ -82,7 +90,7 @@ module "traefik" {
   ]
 
   healthcheck = {
-    command     = ["CMD-SHELL", "wget -qO- http://localhost/ || exit 1"]
+    command     = ["CMD-SHELL", "wget -qO- http://localhost:8080/ping || exit 1"]
     interval    = 60
     retries     = 5
     startPeriod = 20
