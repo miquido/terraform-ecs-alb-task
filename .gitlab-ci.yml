@@ -1,61 +1,49 @@
----
-include:
-  - remote: 'https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.98/terraform-toolkit.yml'
-  - remote: 'https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.98/git-toolkit.yml'
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.98/gitlab-toolkit.yml"
+stages:
+  - test
+  - release
 
-get-latest-terraform:
-  extends: .get-latest-terraform
-
-check-formatting:
-  extends: .check-formatting
-
-validate:
-  extends: .validate-terraform
-  variables:
-    ENVIRONMENTS: examples/complete examples/fargate-spot
-
-miquido-ci-schema-validation:
-  extends: .miquido-ci-schema-validation
-
-bump-tag:
-  extends: .bump_minor_tag
-
-.bump_minor_tag:
+validate-terraform:
+  stage: test
+  image:
+    name: hashicorp/terraform:latest
+    entrypoint: [""]
+  script:
+    - terraform fmt -check -recursive
+    - terraform init -backend=false
+    - terraform validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags:
     - docker
     - miquido
-  stage: .post
-  image: frolvlad/alpine-bash
-  variables:
-    GITLAB_TOKEN: "<ENTER_VAR>"
+
+validate-readme:
+  stage: test
+  image: alpine:3.20
   before_script:
-    - apk add git
+    - apk add --no-cache curl
+    - curl -sSLo /tmp/terraform-docs.tar.gz https://github.com/terraform-docs/terraform-docs/releases/download/v0.24.0/terraform-docs-v0.24.0-linux-amd64.tar.gz
+    - tar -xzf /tmp/terraform-docs.tar.gz -C /usr/local/bin/ terraform-docs
   script:
-    - TXT_RED="\e[31m"
-    - |
-      if [ "$GITLAB_TOKEN" = "<ENTER_VAR>" ]; then
-        echo -e "${TXT_RED}Fatal: Missing GITLAB_TOKEN. \
-      Please setup GITLAB_TOKEN variable with token with write_repository rights"
-        exit 1
-      fi
-    - git tag -l | xargs git tag -d
-    - git fetch origin 'refs/tags/*:refs/tags/*'
-    - VERSION=$(git tag --sort=committerdate | { grep "[0-9]*.[0-9]*.[0-9]*$" || true; }| tail -1)
-    - git remote rm $CI_PIPELINE_ID &> /dev/null || true;
-    - |
-      export SERVER_URL_NO_SCHEMA=$(echo $CI_SERVER_URL | sed 's|^[^:]*://||')
-      git remote add $CI_PIPELINE_ID \
-      https://token:$GITLAB_TOKEN@$SERVER_URL_NO_SCHEMA/$CI_PROJECT_PATH.git
-    - |
-      if [[ "$VERSION" == "" ]]; then
-        echo "VERSION is unset"
-        VERSION="1.0.0"
-      else
-        echo "VERSION is set to '$VERSION'"
-        VERSION=$(echo "$VERSION" | awk -F. '{$NF = $NF + 1;} 1' | sed 's/ /./g')
-      fi
-    - git tag "$VERSION"
-    - git push $CI_PIPELINE_ID $VERSION
+    - terraform-docs --output-check .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - docker
+    - miquido
+
+release:
+  stage: release
+  image: node:22-alpine
+  before_script:
+    - apk add --no-cache git
+    - npm install -g semantic-release @semantic-release/changelog @semantic-release/gitlab @semantic-release/git
+  script:
+    - npx semantic-release
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  tags:
+    - docker
+    - miquido
