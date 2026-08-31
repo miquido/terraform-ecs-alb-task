@@ -53,8 +53,8 @@ module "task" {
 
 | Name | Version |
 | ---- | ------- |
-| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 6.4 |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | 2.8.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
 
 ## Modules
 
@@ -64,7 +64,7 @@ module "task" {
 | <a name="module_container"></a> [container](#module\_container) | git::https://github.com/cloudposse/terraform-aws-ecs-container-definition | v0.61.2 |
 | <a name="module_ecs-service-alarms"></a> [ecs-service-alarms](#module\_ecs-service-alarms) | git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git | v0.13.2 |
 | <a name="module_label"></a> [label](#module\_label) | git::https://github.com/cloudposse/terraform-terraform-label | 0.8.0 |
-| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/miquido/terraform-aws-ecs-alb-service-task | f4df0b7c3b67d707c833221332f1f2e821ac5718 |
+| <a name="module_task"></a> [task](#module\_task) | git::https://github.com/miquido/terraform-aws-ecs-alb-service-task | 7404517c63b815838798c5c9bfcc7aacebf27dce |
 
 ## Resources
 
@@ -117,7 +117,7 @@ module "task" {
 | <a name="input_container_port_name"></a> [container\_port\_name](#input\_container\_port\_name) | n/a | `string` | `"default"` | no |
 | <a name="input_container_tag"></a> [container\_tag](#input\_container\_tag) | n/a | `string` | `"latest"` | no |
 | <a name="input_deploy_approval_gate_enabled"></a> [deploy\_approval\_gate\_enabled](#input\_deploy\_approval\_gate\_enabled) | Whether to create and wire in a built-in manual approval gate for<br/>`BLUE_GREEN` deployments: a Lambda lifecycle hook (`POST_TEST_TRAFFIC_SHIFT`)<br/>backed by a DynamoDB table, one item per deployment keyed by its numeric<br/>revision id (the "ecs-svc/<id>" suffix `update-service` returns, same as<br/>the trailing segment of the lifecycle hook event's<br/>`targetServiceRevisionArn`), so there's no shared mutable state to race on.<br/><br/>The hook auto-approves if no other revision of the service is currently<br/>running - e.g. the service's first-ever deployment has no existing<br/>production traffic to protect, so gating it would just wait forever with<br/>nothing to gain.<br/><br/>CI (or anyone else) drives the gate by writing `PENDING` (when a<br/>deployment starts), then `APPROVED` or `REJECTED`, to the item for that<br/>revision id in the table named by the `deploy_approval_table_name`<br/>output. Requires `deployment_configuration.strategy = "BLUE_GREEN"`. | `bool` | `false` | no |
-| <a name="input_deployment_configuration"></a> [deployment\_configuration](#input\_deployment\_configuration) | ECS deployment configuration. Supports native ECS blue/green deployments<br/>(`strategy = "BLUE_GREEN"`) with optional lifecycle hooks. Leave `null` (the default)<br/>for the standard `ROLLING` strategy. When `strategy = "BLUE_GREEN"`, every entry in<br/>`ecs_load_balancers` must set `advanced_configuration`, and the referenced production<br/>listener rule must already forward to BOTH the primary and alternate target groups.<br/>See [ecs\_service#deployment\_configuration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#deployment_configuration). | <pre>object({<br/>    strategy             = optional(string)<br/>    bake_time_in_minutes = optional(number)<br/>    lifecycle_hook = optional(list(object({<br/>      hook_target_arn  = string<br/>      role_arn         = string<br/>      lifecycle_stages = list(string)<br/>      hook_details     = optional(string)<br/>    })), [])<br/>  })</pre> | `null` | no |
+| <a name="input_deployment_configuration"></a> [deployment\_configuration](#input\_deployment\_configuration) | ECS deployment configuration, passed straight through to the underlying<br/>terraform-aws-ecs-alb-service-task module's `deployment_configuration` variable<br/>(this module only injects its own deploy-approval-gate lifecycle\_hook on top).<br/>See that variable's documentation for the accepted shape - supports `ROLLING`<br/>(default, `null`), `BLUE_GREEN`, `LINEAR` and `CANARY` strategies. | `any` | `null` | no |
 | <a name="input_deployment_controller_type"></a> [deployment\_controller\_type](#input\_deployment\_controller\_type) | Type of deployment controller. Valid values: `CODE_DEPLOY`, `ECS`. | `string` | `"ECS"` | no |
 | <a name="input_deployment_maximum_percent"></a> [deployment\_maximum\_percent](#input\_deployment\_maximum\_percent) | The upper limit of the number of tasks (as a percentage of `desired_count`) that can be running in a service during a deployment | `number` | `200` | no |
 | <a name="input_deployment_minimum_healthy_percent"></a> [deployment\_minimum\_healthy\_percent](#input\_deployment\_minimum\_healthy\_percent) | The lower limit (as a percentage of `desired_count`) of the number of tasks that must remain running and healthy in a service during a deployment | `number` | `100` | no |

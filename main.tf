@@ -113,7 +113,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/miquido/terraform-aws-ecs-alb-service-task?ref=f4df0b7c3b67d707c833221332f1f2e821ac5718"
+  source = "git::https://github.com/miquido/terraform-aws-ecs-alb-service-task?ref=7404517c63b815838798c5c9bfcc7aacebf27dce"
 
   name      = var.name
   namespace = var.project

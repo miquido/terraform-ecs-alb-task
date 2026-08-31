@@ -176,45 +176,24 @@ variable "deployment_minimum_healthy_percent" {
 }
 
 variable "deployment_configuration" {
-  type = object({
-    strategy             = optional(string)
-    bake_time_in_minutes = optional(number)
-    lifecycle_hook = optional(list(object({
-      hook_target_arn  = string
-      role_arn         = string
-      lifecycle_stages = list(string)
-      hook_details     = optional(string)
-    })), [])
-  })
+  # Intentionally `any`, not a duplicated object() type: this module only adds the
+  # deploy-approval-gate lifecycle_hook on top of whatever the caller passes (see
+  # local.deployment_configuration below) and forwards the result to module.task
+  # untouched. The authoritative shape and every validation rule (strategy enum,
+  # bake-time ranges, canary_configuration/linear_configuration requirements,
+  # advanced_configuration/deployment_controller_type prerequisites) live on the
+  # deployment_configuration variable of terraform-aws-ecs-alb-service-task and are
+  # enforced there - duplicating that type here would just be a second copy to keep
+  # in sync every time the underlying module gains a new deployment strategy.
+  type        = any
   description = <<-EOT
-    ECS deployment configuration. Supports native ECS blue/green deployments
-    (`strategy = "BLUE_GREEN"`) with optional lifecycle hooks. Leave `null` (the default)
-    for the standard `ROLLING` strategy. When `strategy = "BLUE_GREEN"`, every entry in
-    `ecs_load_balancers` must set `advanced_configuration`, and the referenced production
-    listener rule must already forward to BOTH the primary and alternate target groups.
-    See [ecs_service#deployment_configuration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#deployment_configuration).
+    ECS deployment configuration, passed straight through to the underlying
+    terraform-aws-ecs-alb-service-task module's `deployment_configuration` variable
+    (this module only injects its own deploy-approval-gate lifecycle_hook on top).
+    See that variable's documentation for the accepted shape - supports `ROLLING`
+    (default, `null`), `BLUE_GREEN`, `LINEAR` and `CANARY` strategies.
     EOT
   default     = null
-
-  validation {
-    condition     = var.deployment_configuration == null ? true : contains(["ROLLING", "BLUE_GREEN"], coalesce(try(var.deployment_configuration.strategy, null), "ROLLING"))
-    error_message = "The deployment_configuration.strategy value must be `ROLLING` or `BLUE_GREEN` (`LINEAR` and `CANARY` are not yet supported by the upstream module)."
-  }
-
-  validation {
-    condition     = try(var.deployment_configuration.bake_time_in_minutes, null) == null ? true : (var.deployment_configuration.bake_time_in_minutes >= 0 && var.deployment_configuration.bake_time_in_minutes <= 1440)
-    error_message = "The deployment_configuration.bake_time_in_minutes value must be inclusively between 0 and 1440."
-  }
-
-  validation {
-    condition     = try(var.deployment_configuration.strategy, null) != "BLUE_GREEN" || (length(var.ecs_load_balancers) > 0 && alltrue([for lb in var.ecs_load_balancers : lb.advanced_configuration != null]))
-    error_message = "When deployment_configuration.strategy is `BLUE_GREEN`, ecs_load_balancers must contain at least one entry and every entry must set advanced_configuration."
-  }
-
-  validation {
-    condition     = try(var.deployment_configuration.strategy, null) != "BLUE_GREEN" || var.deployment_controller_type == "ECS"
-    error_message = "deployment_configuration.strategy `BLUE_GREEN` requires deployment_controller_type = `ECS`."
-  }
 }
 
 variable "availability_zone_rebalancing" {
