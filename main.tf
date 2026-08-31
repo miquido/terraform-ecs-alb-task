@@ -96,7 +96,7 @@ locals {
   deployment_configuration = var.deployment_configuration == null ? null : merge(
     var.deployment_configuration,
     {
-      lifecycle_hook = concat(coalesce(var.deployment_configuration.lifecycle_hook, []), local.deploy_approval_gate_lifecycle_hook)
+      lifecycle_hook = concat(var.deployment_configuration.lifecycle_hook, local.deploy_approval_gate_lifecycle_hook)
     }
   )
 

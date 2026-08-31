@@ -176,22 +176,46 @@ variable "deployment_minimum_healthy_percent" {
 }
 
 variable "deployment_configuration" {
-  # Intentionally `any`, not a duplicated object() type: this module only adds the
-  # deploy-approval-gate lifecycle_hook on top of whatever the caller passes (see
-  # local.deployment_configuration below) and forwards the result to module.task
-  # untouched. The authoritative shape and every validation rule (strategy enum,
-  # bake-time ranges, canary_configuration/linear_configuration requirements,
-  # advanced_configuration/deployment_controller_type prerequisites) live on the
-  # deployment_configuration variable of terraform-aws-ecs-alb-service-task and are
-  # enforced there - duplicating that type here would just be a second copy to keep
-  # in sync every time the underlying module gains a new deployment strategy.
-  type        = any
+  # Mirrors the shape of terraform-aws-ecs-alb-service-task's own
+  # deployment_configuration variable exactly (kept in sync by hand - there's
+  # no way around that in Terraform) so callers get real type checking,
+  # terraform-docs shows the full shape, and optional()'s defaults apply
+  # (e.g. omitted lifecycle_hook coerces to [] here, no try()/coalesce()
+  # needed downstream). What's deliberately NOT duplicated is validation
+  # logic: every runtime rule (strategy enum, bake-time ranges,
+  # canary_configuration/linear_configuration requirements,
+  # advanced_configuration/deployment_controller_type prerequisites) lives
+  # solely on the underlying variable and is enforced there - a second copy
+  # of those rules is what actually went stale/wrong today (an
+  # ecs_load_balancers validation here checked var.ecs_load_balancers
+  # instead of the local.ecs_load_balancers actually passed to module.task).
+  type = object({
+    strategy             = optional(string)
+    bake_time_in_minutes = optional(number)
+    lifecycle_hook = optional(list(object({
+      hook_target_arn  = string
+      role_arn         = string
+      lifecycle_stages = list(string)
+      hook_details     = optional(string)
+    })), [])
+    canary_configuration = optional(object({
+      canary_percent              = number
+      canary_bake_time_in_minutes = optional(number)
+    }))
+    linear_configuration = optional(object({
+      step_percent              = number
+      step_bake_time_in_minutes = optional(number)
+    }))
+  })
   description = <<-EOT
-    ECS deployment configuration, passed straight through to the underlying
-    terraform-aws-ecs-alb-service-task module's `deployment_configuration` variable
-    (this module only injects its own deploy-approval-gate lifecycle_hook on top).
-    See that variable's documentation for the accepted shape - supports `ROLLING`
-    (default, `null`), `BLUE_GREEN`, `LINEAR` and `CANARY` strategies.
+    ECS deployment configuration, forwarded to the underlying
+    terraform-aws-ecs-alb-service-task module's `deployment_configuration`
+    variable (this module only injects its own deploy-approval-gate
+    lifecycle_hook on top). Leave `null` (the default) for the standard
+    `ROLLING` strategy. Supports `BLUE_GREEN`, `LINEAR` and `CANARY` too -
+    `LINEAR` requires `linear_configuration`, `CANARY` requires
+    `canary_configuration`. See that variable's documentation for full
+    validation rules and examples.
     EOT
   default     = null
 }
