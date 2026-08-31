@@ -31,7 +31,7 @@ locals {
 
 module "traefik" {
   count  = var.basic_auth != null ? 1 : 0
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.61.1"
+  source = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=v0.61.2"
 
   command = [
     "sh", "-c",
