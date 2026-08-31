@@ -1,3 +1,21 @@
+# [7.0.0](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/compare/v6.0.10...v7.0.0) (2026-08-31)
+
+
+* feat!: add deploy-gate lifecycle hook, remove traefik/basic_auth support ([38680e3](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/commit/38680e3bcd2f81266813c79454476b63016a0dfd))
+
+
+### Bug Fixes
+
+* regenerate README.md without a stray lock file present ([9ea1859](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/commit/9ea18596e6e524fa363ce9fa12cd35e6144bde37))
+
+
+### BREAKING CHANGES
+
+* the basic_auth variable and its traefik sidecar have
+been removed. Traefik in front of the app container was the wrong
+layer for this; auth belongs in front of ALB/CloudFront if needed.
+Consumers pinned to an older tag are unaffected.
+
 # 1.0.0 (2026-08-20)
 
 
