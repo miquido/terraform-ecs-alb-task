@@ -1,3 +1,16 @@
+# [7.1.0](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/compare/v7.0.0...v7.1.0) (2026-08-31)
+
+
+### Bug Fixes
+
+* regenerate README.md without a stray lock file present ([cd064a2](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/commit/cd064a2c0e662d71f9b29395e6918ef0231de3a9))
+
+
+### Features
+
+* pass deployment_configuration through untyped, bump task module pin ([7063419](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/commit/70634193d1526f3921c91b821e7896954cc25e52))
+* type deployment_configuration properly instead of any ([b0be8e0](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/commit/b0be8e02b7c35c5b483c952e0a1faeb2777a026c))
+
 # [7.0.0](https://gitlab.miquido.com/miquido/terraform/terraform-ecs-alb-task/compare/v6.0.10...v7.0.0) (2026-08-31)
 
 
