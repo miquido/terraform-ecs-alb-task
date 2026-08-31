@@ -175,6 +175,65 @@ variable "deployment_minimum_healthy_percent" {
   default     = 100
 }
 
+variable "deployment_configuration" {
+  type = object({
+    strategy             = optional(string)
+    bake_time_in_minutes = optional(number)
+    lifecycle_hook = optional(list(object({
+      hook_target_arn  = string
+      role_arn         = string
+      lifecycle_stages = list(string)
+      hook_details     = optional(string)
+    })), [])
+  })
+  description = <<-EOT
+    ECS deployment configuration. Supports native ECS blue/green deployments
+    (`strategy = "BLUE_GREEN"`) with optional lifecycle hooks. Leave `null` (the default)
+    for the standard `ROLLING` strategy. When `strategy = "BLUE_GREEN"`, every entry in
+    `ecs_load_balancers` must set `advanced_configuration`, and the referenced production
+    listener rule must already forward to BOTH the primary and alternate target groups.
+    See [ecs_service#deployment_configuration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#deployment_configuration).
+    EOT
+  default     = null
+
+  validation {
+    condition     = var.deployment_configuration == null ? true : contains(["ROLLING", "BLUE_GREEN"], coalesce(try(var.deployment_configuration.strategy, null), "ROLLING"))
+    error_message = "The deployment_configuration.strategy value must be `ROLLING` or `BLUE_GREEN` (`LINEAR` and `CANARY` are not yet supported by the upstream module)."
+  }
+
+  validation {
+    condition     = try(var.deployment_configuration.bake_time_in_minutes, null) == null ? true : (var.deployment_configuration.bake_time_in_minutes >= 0 && var.deployment_configuration.bake_time_in_minutes <= 1440)
+    error_message = "The deployment_configuration.bake_time_in_minutes value must be inclusively between 0 and 1440."
+  }
+
+  validation {
+    condition     = try(var.deployment_configuration.strategy, null) != "BLUE_GREEN" || (length(var.ecs_load_balancers) > 0 && alltrue([for lb in var.ecs_load_balancers : lb.advanced_configuration != null]))
+    error_message = "When deployment_configuration.strategy is `BLUE_GREEN`, ecs_load_balancers must contain at least one entry and every entry must set advanced_configuration."
+  }
+
+  validation {
+    condition     = try(var.deployment_configuration.strategy, null) != "BLUE_GREEN" || var.deployment_controller_type == "ECS"
+    error_message = "deployment_configuration.strategy `BLUE_GREEN` requires deployment_controller_type = `ECS`."
+  }
+}
+
+variable "availability_zone_rebalancing" {
+  type        = string
+  description = "ECS automatically redistributes tasks within a service across Availability Zones (AZs) to mitigate the risk of impaired application availability due to underlying infrastructure failures and task lifecycle activities. The valid values are `ENABLED` and `DISABLED`."
+  default     = "DISABLED"
+
+  validation {
+    condition     = contains(["ENABLED", "DISABLED"], var.availability_zone_rebalancing)
+    error_message = "The valid values are `ENABLED` and `DISABLED`."
+  }
+}
+
+variable "enable_fault_injection" {
+  type        = bool
+  description = "Enables fault injection and allows for fault injection requests to be accepted from the task's containers"
+  default     = false
+}
+
 variable "vpc_id" {
   type        = string
   description = "The VPC ID where resources are created"
@@ -220,8 +279,17 @@ variable "ecs_load_balancers" {
     container_port   = number
     elb_name         = optional(string)
     target_group_arn = string
+    advanced_configuration = optional(object({
+      alternate_target_group_arn = string
+      production_listener_rule   = string
+      role_arn                   = string
+      test_listener_rule         = optional(string)
+    }), null)
   }))
-  description = "A list of load balancer config objects for the ECS service; see [ecs_service#load_balancer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#load_balancer) docs"
+  description = <<-EOT
+    A list of load balancer config objects for the ECS service; see [ecs_service#load_balancer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#load_balancer) docs.
+    Set `advanced_configuration` on every entry when `deployment_configuration.strategy = "BLUE_GREEN"`.
+    EOT
   default     = []
 }
 
@@ -851,6 +919,52 @@ variable "circuit_breaker_rollback_enabled" {
   default     = false
 }
 
+variable "alarms_deployment_names" {
+  type        = list(string)
+  description = <<-EOT
+    CloudWatch alarm names to watch during a deployment. If non-empty, enables
+    the native `alarms` deployment failure detection block on the ECS service.
+    Unlike the deployment circuit breaker (ECS-only, watches for tasks that
+    fail to start or pass health checks), this also covers the `BLUE_GREEN`
+    bake time window.
+    EOT
+  default     = []
+}
+
+variable "alarms_deployment_rollback_enabled" {
+  type        = bool
+  description = "Whether to enable Amazon ECS to roll back the service if one of `alarms_deployment_names` enters ALARM state during a deployment. Only used when `alarms_deployment_names` is non-empty."
+  default     = true
+}
+
+variable "deploy_approval_gate_enabled" {
+  type        = bool
+  default     = false
+  description = <<-EOT
+    Whether to create and wire in a built-in manual approval gate for
+    `BLUE_GREEN` deployments: a Lambda lifecycle hook (`POST_TEST_TRAFFIC_SHIFT`)
+    backed by a DynamoDB table, one item per deployment keyed by its numeric
+    revision id (the "ecs-svc/<id>" suffix `update-service` returns, same as
+    the trailing segment of the lifecycle hook event's
+    `targetServiceRevisionArn`), so there's no shared mutable state to race on.
+
+    The hook auto-approves if no other revision of the service is currently
+    running - e.g. the service's first-ever deployment has no existing
+    production traffic to protect, so gating it would just wait forever with
+    nothing to gain.
+
+    CI (or anyone else) drives the gate by writing `PENDING` (when a
+    deployment starts), then `APPROVED` or `REJECTED`, to the item for that
+    revision id in the table named by the `deploy_approval_table_name`
+    output. Requires `deployment_configuration.strategy = "BLUE_GREEN"`.
+    EOT
+
+  validation {
+    condition     = !var.deploy_approval_gate_enabled || try(var.deployment_configuration.strategy, null) == "BLUE_GREEN"
+    error_message = "deploy_approval_gate_enabled requires deployment_configuration.strategy = \"BLUE_GREEN\"."
+  }
+}
+
 variable "envoy_health_check_start_period" {
   type        = number
   description = "when envoy container should start performing health checks"
@@ -879,6 +993,14 @@ variable "service_connect_configurations" {
       client_alias = list(object({
         dns_name = string
         port     = number
+        test_traffic_rules = optional(list(object({
+          header = object({
+            name = string
+            value = object({
+              exact = string
+            })
+          })
+        })), [])
       }))
       timeout = optional(list(object({
         idle_timeout_seconds        = optional(number, null)
@@ -1028,13 +1150,4 @@ variable "container_definition" {
   })
   description = "Container definition overrides which allows for extra keys or overriding existing keys."
   default     = {}
-}
-
-variable "basic_auth" {
-  type = object({
-    user              = string
-    password          = string
-    ignore_auth_paths = optional(list(string), [])
-  })
-  default = null
 }

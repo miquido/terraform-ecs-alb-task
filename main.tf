@@ -26,7 +26,7 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 module "container" {
-  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=0.61.1"
+  source                       = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition?ref=v0.61.2"
   container_name               = module.label.id
   container_image              = "${var.container_image}:${var.container_tag}"
   essential                    = var.essential
@@ -82,15 +82,30 @@ module "container" {
 }
 
 locals {
-  container_definitions      = compact(concat([module.container.json_map_encoded], var.additional_containers, var.basic_auth != null ? [module.traefik[0].json_map_encoded] : []))
+  container_definitions      = compact(concat([module.container.json_map_encoded], var.additional_containers))
   container_definitions_json = "[${join(",", local.container_definitions)}]"
+
+  deploy_approval_gate_lifecycle_hook = var.deploy_approval_gate_enabled ? [
+    {
+      hook_target_arn  = aws_lambda_function.deploy_gate[0].arn
+      role_arn         = aws_iam_role.ecs_lambda_invoke[0].arn
+      lifecycle_stages = ["POST_TEST_TRAFFIC_SHIFT"]
+    }
+  ] : []
+
+  deployment_configuration = var.deployment_configuration == null ? null : merge(
+    var.deployment_configuration,
+    {
+      lifecycle_hook = concat(coalesce(var.deployment_configuration.lifecycle_hook, []), local.deploy_approval_gate_lifecycle_hook)
+    }
+  )
 
   ecs_default_alb = var.ecs_default_alb_enabled ? [
     {
       elb_name         = null
       target_group_arn = var.alb_target_group_arn
-      container_name   = var.basic_auth != null ? "traefik" : module.label.id
-      container_port   = var.basic_auth != null ? 80 : var.container_port
+      container_name   = module.label.id
+      container_port   = var.container_port
     }
   ] : []
 
@@ -98,7 +113,7 @@ locals {
 }
 
 module "task" {
-  source = "git::https://github.com/cloudposse/terraform-aws-ecs-alb-service-task?ref=v0.76.0"
+  source = "git::https://github.com/miquido/terraform-aws-ecs-alb-service-task?ref=f4df0b7c3b67d707c833221332f1f2e821ac5718"
 
   name      = var.name
   namespace = var.project
@@ -142,9 +157,16 @@ module "task" {
   security_group_description         = var.security_group_description
   circuit_breaker_deployment_enabled = var.circuit_breaker_deployment_enabled
   circuit_breaker_rollback_enabled   = var.circuit_breaker_rollback_enabled
+  alarms_deployment_names            = var.alarms_deployment_names
+  alarms_deployment_rollback_enabled = var.alarms_deployment_rollback_enabled
   runtime_platform                   = var.runtime_platform
   redeploy_on_apply                  = var.redeploy_on_apply
   service_connect_configurations     = var.service_connect_configurations
+  deployment_configuration           = local.deployment_configuration
+  availability_zone_rebalancing      = var.availability_zone_rebalancing
+  enable_fault_injection             = var.enable_fault_injection
+
+  depends_on = [aws_iam_role_policy.ecs_lambda_invoke]
 }
 
 data "aws_iam_policy_document" "ecs-exec-ssm-secrets" {
@@ -191,7 +213,7 @@ locals {
 }
 
 module "ecs-service-alarms" {
-  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=0.13.0"
+  source            = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-sns-alarms.git?ref=v0.13.2"
   enabled           = var.ecs_alarms_enabled
   name              = var.name
   namespace         = var.project
@@ -247,7 +269,7 @@ module "ecs-service-alarms" {
 }
 
 module "autoscaling" {
-  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=0.7.5"
+  source    = "git::https://github.com/cloudposse/terraform-aws-ecs-cloudwatch-autoscaling.git?ref=v1.0.0"
   enabled   = var.autoscaling_enabled
   name      = var.name
   namespace = var.project
@@ -257,10 +279,24 @@ module "autoscaling" {
   service_name = module.task.service_name
   cluster_name = var.ecs_cluster_name
 
-  min_capacity          = var.autoscaling_min_capacity
-  max_capacity          = var.autoscaling_max_capacity
-  scale_down_adjustment = var.autoscaling_scale_down_adjustment
-  scale_down_cooldown   = var.autoscaling_scale_down_cooldown
-  scale_up_adjustment   = var.autoscaling_scale_up_adjustment
-  scale_up_cooldown     = var.autoscaling_scale_up_cooldown
+  min_capacity = var.autoscaling_min_capacity
+  max_capacity = var.autoscaling_max_capacity
+
+  scale_up_cooldown = var.autoscaling_scale_up_cooldown
+  scale_up_step_adjustments = [
+    {
+      metric_interval_lower_bound = 0
+      metric_interval_upper_bound = null
+      scaling_adjustment          = var.autoscaling_scale_up_adjustment
+    }
+  ]
+
+  scale_down_cooldown = var.autoscaling_scale_down_cooldown
+  scale_down_step_adjustments = [
+    {
+      metric_interval_lower_bound = null
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = var.autoscaling_scale_down_adjustment
+    }
+  ]
 }

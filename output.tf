@@ -80,3 +80,13 @@ output "task_definition_arn_without_revision" {
 output "service_security_group_id" {
   value = module.task.service_security_group_id
 }
+
+output "deploy_approval_table_name" {
+  description = "Name of the deploy-gate DynamoDB approval table, or null if deploy_approval_gate_enabled is false. Write PENDING/APPROVED/REJECTED items here keyed by the deployment's numeric revision id."
+  value       = var.deploy_approval_gate_enabled ? aws_dynamodb_table.deploy_approval[0].name : null
+}
+
+output "deploy_approval_table_arn" {
+  description = "ARN of the deploy-gate DynamoDB approval table, or null if deploy_approval_gate_enabled is false"
+  value       = var.deploy_approval_gate_enabled ? aws_dynamodb_table.deploy_approval[0].arn : null
+}
