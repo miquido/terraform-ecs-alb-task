@@ -1,29 +1,14 @@
 ---
 include:
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.135/gitlab-toolkit.yml"
-  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.135/terraform-toolkit.yml"
+  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.141/gitlab-toolkit.yml"
+  - remote: "https://raw.githubusercontent.com/miquido/gitlab-templates/1.3.141/terraform-toolkit.yml"
 
 stages:
   - test
   - release
 
 validate-terraform:
-  variables:
-    TF_DIR: "."
-  image:
-    name: ghcr.io/opentofu/opentofu:1.11.4
-    entrypoint: [""]
-  script:
-    - cd "$TF_DIR"
-    - tofu fmt -check -recursive
-    - tofu init -backend=false
-    - tofu validate
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags:
-    - docker
-    - miquido
+  extends: .validate-terraform-tofu
 
 validate-readme:
   extends: .validate-readme
